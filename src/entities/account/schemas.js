@@ -3,11 +3,7 @@ const {Story: {validator: {schemaItems: {number1, string1, nullOrString}}}} = re
 const registerSchema = {
     id: 'registerSchema',
     additionalItems: false,
-    required: ['name', 'password'],
-    anyOf: [
-        {required: ['phone']},
-        {required: ['nickname']},
-    ],
+    required: ['name', 'phone', 'password'],
     properties: {
         name: {
             type: 'string',

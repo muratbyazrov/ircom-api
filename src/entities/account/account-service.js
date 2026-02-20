@@ -16,6 +16,11 @@ const createSessionToken = () => crypto.randomBytes(32).toString('hex');
 
 class AccountService {
     async register({params}) {
+        const phone = String(params.phone || '').trim();
+        if (!phone) {
+            throw new Error('Phone is required');
+        }
+
         const passwordSalt = createSalt();
         const passwordHash = hashPassword(params.password, passwordSalt);
         let account;
@@ -26,7 +31,7 @@ class AccountService {
                 params: {
                     name: params.name,
                     nickname: params.nickname || null,
-                    phone: params.phone || null,
+                    phone,
                     passwordHash,
                     passwordSalt,
                     whatsapp: params.whatsapp || null,
@@ -80,7 +85,7 @@ class AccountService {
         const actualHash = hashPassword(params.password, authAccount.passwordSalt);
         const isPasswordValid = crypto.timingSafeEqual(
             Buffer.from(actualHash, 'hex'),
-            Buffer.from(authAccount.passwordHash, 'hex')
+            Buffer.from(authAccount.passwordHash, 'hex'),
         );
 
         if (!isPasswordValid) {
