@@ -9,3 +9,5 @@ DROP TABLE IF EXISTS listing_favorites;
 DROP TABLE IF EXISTS listings;
 DROP TABLE IF EXISTS account_sessions;
 DROP TABLE IF EXISTS accounts;
+
+SET search_path TO public;

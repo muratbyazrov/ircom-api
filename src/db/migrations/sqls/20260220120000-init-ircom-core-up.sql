@@ -128,3 +128,5 @@ CREATE TABLE IF NOT EXISTS menu_item_favorites (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (account_id, menu_item_id)
 );
+
+SET search_path TO public;

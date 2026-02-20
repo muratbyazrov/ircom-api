@@ -4,7 +4,7 @@ module.exports = {
         port: 5432,
         database: 'ircom-api',
         schema: 'ircom-api',
-        user: 'ircom-api-user-1',
+        user: 'ircom-api',
         password: 'ircom-api-password-1',
         runMigrations: true,
     },
