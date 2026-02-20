@@ -1,0 +1,20 @@
+{
+  "name": "ircom-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "prod": "NODE_ENV=production nodemon app.js",
+    "docker": "NODE_ENV=docker nodemon app.js",
+    "dev": "NODE_ENV=development nodemon app.js",
+    "env": "./environment docker-compose up",
+    "stop env": "./environment docker-compose rm -vsf"
+  },
+  "dependencies": {
+    "story-system": "git@github.com:muratbyazrov/story-system.git"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^2.0.16"
+  }
+}

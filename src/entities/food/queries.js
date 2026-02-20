@@ -1,0 +1,246 @@
+module.exports = {
+    createOrUpdateRestaurant: `
+        INSERT INTO restaurants (
+             owner_account_id
+            ,name
+            ,description
+            ,logo_url
+            ,phone
+            ,whatsapp
+            ,telegram
+        )
+        VALUES (
+             :accountId
+            ,:name
+            ,:description
+            ,:logoUrl
+            ,:phone
+            ,:whatsapp
+            ,:telegram
+        )
+        ON CONFLICT (owner_account_id) DO UPDATE SET
+             name = :name
+            ,description = :description
+            ,logo_url = :logoUrl
+            ,phone = :phone
+            ,whatsapp = :whatsapp
+            ,telegram = :telegram
+            ,updated_at = NOW()
+        RETURNING
+             restaurant_id AS "restaurantId"
+            ,owner_account_id AS "accountId"
+            ,name
+            ,description
+            ,logo_url AS "logoUrl"
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
+    getMyRestaurant: `
+        SELECT
+             restaurant_id AS "restaurantId"
+            ,owner_account_id AS "accountId"
+            ,name
+            ,description
+            ,logo_url AS "logoUrl"
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt"
+        FROM
+            restaurants
+        WHERE
+            owner_account_id = :accountId;`,
+
+    createMenuItem: `
+        INSERT INTO menu_items (
+             restaurant_id
+            ,category
+            ,name
+            ,description
+            ,cook_time_minutes
+            ,always_in_stock
+            ,price
+            ,has_delivery
+            ,is_available
+            ,photos
+        )
+        SELECT
+             r.restaurant_id
+            ,:category
+            ,:name
+            ,:description
+            ,:cookTimeMinutes
+            ,COALESCE(:alwaysInStock, FALSE)
+            ,:price
+            ,COALESCE(:hasDelivery, FALSE)
+            ,COALESCE(:isAvailable, TRUE)
+            ,COALESCE(:photos, '[]'::jsonb)
+        FROM
+            restaurants AS r
+        WHERE
+            r.owner_account_id = :accountId
+        RETURNING
+             menu_item_id AS "menuItemId"
+            ,restaurant_id AS "restaurantId"
+            ,category
+            ,name
+            ,description
+            ,cook_time_minutes AS "cookTimeMinutes"
+            ,always_in_stock AS "alwaysInStock"
+            ,price
+            ,has_delivery AS "hasDelivery"
+            ,is_available AS "isAvailable"
+            ,photos
+            ,created_at AS "createdAt";`,
+
+    updateMenuItem: `
+        UPDATE menu_items AS m
+        SET
+             category = :category
+            ,name = :name
+            ,description = :description
+            ,cook_time_minutes = :cookTimeMinutes
+            ,always_in_stock = COALESCE(:alwaysInStock, FALSE)
+            ,price = :price
+            ,has_delivery = COALESCE(:hasDelivery, FALSE)
+            ,is_available = COALESCE(:isAvailable, TRUE)
+            ,photos = COALESCE(:photos, '[]'::jsonb)
+            ,updated_at = NOW()
+        FROM
+            restaurants AS r
+        WHERE
+            m.menu_item_id = :menuItemId
+            AND r.restaurant_id = m.restaurant_id
+            AND r.owner_account_id = :accountId
+        RETURNING
+             m.menu_item_id AS "menuItemId"
+            ,m.restaurant_id AS "restaurantId"
+            ,m.category
+            ,m.name
+            ,m.description
+            ,m.cook_time_minutes AS "cookTimeMinutes"
+            ,m.always_in_stock AS "alwaysInStock"
+            ,m.price
+            ,m.has_delivery AS "hasDelivery"
+            ,m.is_available AS "isAvailable"
+            ,m.photos
+            ,m.created_at AS "createdAt"
+            ,m.updated_at AS "updatedAt";`,
+
+    deleteMenuItem: `
+        UPDATE menu_items AS m
+        SET
+             is_active = FALSE
+            ,updated_at = NOW()
+        FROM
+            restaurants AS r
+        WHERE
+            m.menu_item_id = :menuItemId
+            AND r.restaurant_id = m.restaurant_id
+            AND r.owner_account_id = :accountId
+        RETURNING
+             m.menu_item_id AS "menuItemId"
+            ,m.is_active AS "isActive";`,
+
+    getMenuItems: `
+        SELECT
+             m.menu_item_id AS "menuItemId"
+            ,m.restaurant_id AS "restaurantId"
+            ,m.category
+            ,m.name
+            ,m.description
+            ,m.cook_time_minutes AS "cookTimeMinutes"
+            ,m.always_in_stock AS "alwaysInStock"
+            ,m.price
+            ,m.has_delivery AS "hasDelivery"
+            ,m.is_available AS "isAvailable"
+            ,m.photos
+            ,m.created_at AS "createdAt"
+            ,r.name AS "restaurantName"
+            ,r.logo_url AS "restaurantLogoUrl"
+            ,r.phone
+            ,r.whatsapp
+            ,r.telegram
+            ,COALESCE(mf.account_id IS NOT NULL, FALSE) AS "isFavorite"
+        FROM
+            menu_items AS m
+            INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
+            LEFT JOIN menu_item_favorites AS mf
+                ON mf.menu_item_id = m.menu_item_id
+                /*accountId: AND mf.account_id = :accountId */
+        WHERE
+            m.is_active = TRUE
+            /*restaurantId: AND m.restaurant_id = :restaurantId */
+            /*category: AND m.category = :category */
+            /*hasDelivery: AND m.has_delivery = TRUE */
+            /*onlyAvailable: AND (m.always_in_stock = TRUE OR m.is_available = TRUE) */
+            /*onlyFavorites: AND mf.account_id = :accountId */
+        ORDER BY
+            CASE WHEN :sortBy = 'price_asc' THEN m.price END ASC,
+            CASE WHEN :sortBy = 'price_desc' THEN m.price END DESC,
+            CASE WHEN :sortBy = 'cook_time_asc' THEN m.cook_time_minutes END ASC,
+            CASE WHEN :sortBy = 'date_desc' THEN m.created_at END DESC,
+            m.menu_item_id DESC
+        LIMIT :limit
+        OFFSET :offset;`,
+
+    getMenuItemById: `
+        SELECT
+             m.menu_item_id AS "menuItemId"
+            ,m.restaurant_id AS "restaurantId"
+            ,m.category
+            ,m.name
+            ,m.description
+            ,m.cook_time_minutes AS "cookTimeMinutes"
+            ,m.always_in_stock AS "alwaysInStock"
+            ,m.price
+            ,m.has_delivery AS "hasDelivery"
+            ,m.is_available AS "isAvailable"
+            ,m.photos
+            ,m.created_at AS "createdAt"
+            ,r.name AS "restaurantName"
+            ,r.logo_url AS "restaurantLogoUrl"
+            ,r.phone
+            ,r.whatsapp
+            ,r.telegram
+            ,COALESCE(mf.account_id IS NOT NULL, FALSE) AS "isFavorite"
+        FROM
+            menu_items AS m
+            INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
+            LEFT JOIN menu_item_favorites AS mf
+                ON mf.menu_item_id = m.menu_item_id
+                /*accountId: AND mf.account_id = :accountId */
+        WHERE
+            m.menu_item_id = :menuItemId
+            AND m.is_active = TRUE;`,
+
+    toggleMenuItemFavorite: `
+        WITH inserted AS (
+            INSERT INTO menu_item_favorites (
+                 account_id
+                ,menu_item_id
+            )
+            VALUES (
+                 :accountId
+                ,:menuItemId
+            )
+            ON CONFLICT (account_id, menu_item_id) DO NOTHING
+            RETURNING menu_item_id
+        ),
+        deleted AS (
+            DELETE FROM menu_item_favorites
+            WHERE
+                account_id = :accountId
+                AND menu_item_id = :menuItemId
+                AND NOT EXISTS (SELECT 1 FROM inserted)
+            RETURNING menu_item_id
+        )
+        SELECT
+             :menuItemId AS "menuItemId"
+            ,:accountId AS "accountId"
+            ,EXISTS (SELECT 1 FROM inserted) AS "isFavorite";`,
+};

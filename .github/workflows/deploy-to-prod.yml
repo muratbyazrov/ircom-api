@@ -1,0 +1,31 @@
+name: Deploy to Prod
+
+on:
+  workflow_run:
+    workflows: ["Publish Docker Image"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Copy .deploy files to server
+        run: |
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" scp -o StrictHostKeyChecking=no -r .deploy/* root@194.26.138.219:/home/unison/
+
+      - name: Restart docker-compose with new images
+        run: |
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@194.26.138.219 << 'EOF'
+            cd /home/unison
+            docker image rm muratbiazrov/unison-api:latest || true
+            docker-compose pull
+            docker-compose up -d --no-deps unison-api
+          EOF

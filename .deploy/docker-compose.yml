@@ -1,0 +1,24 @@
+services:
+  unison-api:
+    image: muratbiazrov/unison-api:latest
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+
+  unison-telegram-bot:
+    image: muratbiazrov/unison-telegram-bot:latest
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production

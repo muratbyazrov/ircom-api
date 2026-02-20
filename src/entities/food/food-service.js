@@ -1,0 +1,102 @@
+const {Story} = require('story-system');
+const {
+    createOrUpdateRestaurant,
+    getMyRestaurant,
+    createMenuItem,
+    updateMenuItem,
+    deleteMenuItem,
+    getMenuItems,
+    getMenuItemById,
+    toggleMenuItemFavorite,
+} = require('./queries.js');
+
+class FoodService {
+    createOrUpdateRestaurant({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: createOrUpdateRestaurant,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    getMyRestaurant({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: getMyRestaurant,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    createMenuItem({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: createMenuItem,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    updateMenuItem({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: updateMenuItem,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    deleteMenuItem({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: deleteMenuItem,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    getMenuItems({params}) {
+        const queryParams = {
+            ...params,
+            limit: params.limit || 20,
+            offset: params.offset || 0,
+            sortBy: params.sortBy || 'date_desc',
+            hasDelivery: params.hasDelivery ? 1 : undefined,
+            onlyAvailable: params.onlyAvailable ? 1 : undefined,
+            onlyFavorites: params.onlyFavorites ? 1 : undefined,
+        };
+
+        return Story.dbAdapter.execQuery({
+            queryName: getMenuItems,
+            params: queryParams,
+        });
+    }
+
+    getMenuItemById({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: getMenuItemById,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    toggleMenuItemFavorite({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: toggleMenuItemFavorite,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+}
+
+module.exports = {FoodService};

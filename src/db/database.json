@@ -1,0 +1,29 @@
+{
+  "development": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "database": "ircom-api",
+    "schema": "ircom-api",
+    "user": "ircom-api-user-1",
+    "password": "ircom-api-password-1"
+  },
+  "docker": {
+    "driver": "pg",
+    "host": "postgres",
+    "port": 5432,
+    "database": "ircom-api",
+    "schema": "ircom-api",
+    "user": "ircom-api",
+    "password": "ircom-api-password-1"
+  },
+  "production": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "database": "ircom-api",
+    "schema": "ircom-api",
+    "user": "ircom-api-user",
+    "password": "replace-me"
+  }
+}
