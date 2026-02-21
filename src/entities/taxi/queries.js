@@ -46,6 +46,44 @@ module.exports = {
             ,reviews_count AS "reviewsCount"
             ,created_at AS "createdAt";`,
 
+    updateTaxiOffer: `
+        UPDATE taxi_offers
+        SET
+             direction = :direction
+            ,display_name = :displayName
+            ,description = :description
+            ,price = :price
+            ,phone = :phone
+            ,whatsapp = :whatsapp
+            ,telegram = :telegram
+            ,departure_at = :departureAt
+            ,seats_total = :seatsTotal
+            ,seats_free = :seatsFree
+            ,car_photos = COALESCE(:carPhotos, '[]'::jsonb)
+            ,updated_at = NOW()
+        WHERE
+            taxi_offer_id = :taxiOfferId
+            AND owner_account_id = :accountId
+            AND is_active = TRUE
+        RETURNING
+             taxi_offer_id AS "taxiOfferId"
+            ,owner_account_id AS "accountId"
+            ,direction
+            ,display_name AS "displayName"
+            ,description
+            ,price
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,departure_at AS "departureAt"
+            ,seats_total AS "seatsTotal"
+            ,seats_free AS "seatsFree"
+            ,car_photos AS "carPhotos"
+            ,rating
+            ,reviews_count AS "reviewsCount"
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
     getTaxiOffers: `
         SELECT
              t.taxi_offer_id AS "taxiOfferId"

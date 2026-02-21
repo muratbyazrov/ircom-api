@@ -32,6 +32,34 @@ module.exports = {
             ,photos
             ,created_at AS "createdAt";`,
 
+    updateListing: `
+        UPDATE listings
+        SET
+             category = :category
+            ,title = :title
+            ,description = :description
+            ,price = :price
+            ,real_estate_type = :realEstateType
+            ,photos = COALESCE(:photos, '[]'::jsonb)
+            ,updated_at = NOW()
+        WHERE
+            listing_id = :listingId
+            AND owner_account_id = :accountId
+            AND kind = :kind
+            AND is_active = TRUE
+        RETURNING
+             listing_id AS "listingId"
+            ,owner_account_id AS "accountId"
+            ,kind
+            ,category
+            ,title
+            ,description
+            ,price
+            ,real_estate_type AS "realEstateType"
+            ,photos
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
     getListings: `
         SELECT
              l.listing_id AS "listingId"

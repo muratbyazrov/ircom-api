@@ -51,6 +51,52 @@ const createTaxiOfferSchema = {
     },
 };
 
+const updateTaxiOfferSchema = {
+    id: 'updateTaxiOfferSchema',
+    additionalItems: false,
+    required: ['accountId', 'taxiOfferId', 'direction', 'displayName', 'phone', 'price'],
+    properties: {
+        accountId: number1,
+        taxiOfferId: number1,
+        direction: {enum: [1, 2, 3]},
+        displayName: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 60,
+        },
+        description: {
+            type: 'string',
+            minLength: 0,
+            maxLength: 2000,
+        },
+        phone: string1,
+        whatsapp: string1,
+        telegram: string1,
+        price: {
+            type: 'number',
+            minimum: 1,
+        },
+        departureAt: {
+            type: 'string',
+            minLength: 10,
+            maxLength: 64,
+        },
+        seatsTotal: {
+            type: 'integer',
+            minimum: 1,
+        },
+        seatsFree: {
+            type: 'integer',
+            minimum: 0,
+        },
+        carPhotos: {
+            type: 'array',
+            maxItems: 10,
+            items: taxiPhoto,
+        },
+    },
+};
+
 const getTaxiOffersSchema = {
     id: 'getTaxiOffersSchema',
     additionalItems: false,
@@ -106,6 +152,7 @@ const toggleTaxiFavoriteSchema = {
 
 module.exports = {
     createTaxiOfferSchema,
+    updateTaxiOfferSchema,
     getTaxiOffersSchema,
     getTaxiOfferByIdSchema,
     getMyTaxiOffersSchema,

@@ -37,6 +37,38 @@ const createListingSchema = {
     },
 };
 
+const updateListingSchema = {
+    id: 'updateListingSchema',
+    additionalItems: false,
+    required: ['accountId', 'listingId', 'kind', 'category', 'title', 'description', 'price'],
+    properties: {
+        accountId: number1,
+        listingId: number1,
+        kind: {enum: [1, 2]},
+        category: string1,
+        title: {
+            type: 'string',
+            minLength: 3,
+            maxLength: 80,
+        },
+        description: {
+            type: 'string',
+            minLength: 10,
+            maxLength: 2000,
+        },
+        price: {
+            type: 'number',
+            minimum: 1,
+        },
+        realEstateType: {enum: [1, 2]},
+        photos: {
+            type: 'array',
+            maxItems: 10,
+            items: listingPhoto,
+        },
+    },
+};
+
 const getListingsSchema = {
     id: 'getListingsSchema',
     additionalItems: false,
@@ -93,6 +125,7 @@ const toggleListingFavoriteSchema = {
 
 module.exports = {
     createListingSchema,
+    updateListingSchema,
     getListingsSchema,
     getListingByIdSchema,
     getMyListingsSchema,

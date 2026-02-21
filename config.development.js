@@ -9,7 +9,7 @@ module.exports = {
         runMigrations: true,
     },
     http: {
-        host: '127.0.0.1',
+        host: process.env.IRCOM_API_HOST || '0.0.0.0',
         port: 3002,
         path: '/ircom-api/v1',
     },

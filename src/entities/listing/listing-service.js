@@ -1,6 +1,7 @@
 const {Story} = require('story-system');
 const {
     createListing,
+    updateListing,
     getListings,
     getListingById,
     getMyListings,
@@ -11,6 +12,16 @@ class ListingService {
     createListing({params}) {
         return Story.dbAdapter.execQuery({
             queryName: createListing,
+            params,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    updateListing({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: updateListing,
             params,
             options: {
                 singularRow: true,

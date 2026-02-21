@@ -34,6 +34,7 @@ http://127.0.0.1:3002/ircom-api/v1
 
 ### listing
 - `createListing`
+- `updateListing`
 - `getListings`
 - `getListingById`
 - `getMyListings`
@@ -41,6 +42,7 @@ http://127.0.0.1:3002/ircom-api/v1
 
 ### taxi
 - `createTaxiOffer`
+- `updateTaxiOffer`
 - `getTaxiOffers`
 - `getTaxiOfferById`
 - `getMyTaxiOffers`

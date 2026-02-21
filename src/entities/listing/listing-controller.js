@@ -1,6 +1,7 @@
 const {Story} = require('story-system');
 const {
     createListingSchema,
+    updateListingSchema,
     getListingsSchema,
     getListingByIdSchema,
     getMyListingsSchema,
@@ -15,6 +16,11 @@ class ListingController {
     createListing(data) {
         Story.validator.validate(data.params, createListingSchema);
         return this.service.createListing(data);
+    }
+
+    updateListing(data) {
+        Story.validator.validate(data.params, updateListingSchema);
+        return this.service.updateListing(data);
     }
 
     getListings(data) {
