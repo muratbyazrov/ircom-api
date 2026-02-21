@@ -8,11 +8,25 @@ const {
     toggleListingFavorite,
 } = require('./queries.js');
 
+const normalizePhotos = params => {
+    if (!Object.prototype.hasOwnProperty.call(params, 'photos') || params.photos === null) {
+        return null;
+    }
+
+    return JSON.stringify(params.photos);
+};
+
 class ListingService {
     createListing({params}) {
+        const queryParams = {
+            ...params,
+            realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
+            photos: normalizePhotos(params),
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: createListing,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
@@ -20,9 +34,15 @@ class ListingService {
     }
 
     updateListing({params}) {
+        const queryParams = {
+            ...params,
+            realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
+            photos: normalizePhotos(params),
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: updateListing,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },

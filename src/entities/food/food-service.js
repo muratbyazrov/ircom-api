@@ -1,6 +1,7 @@
 const {Story} = require('story-system');
 const {
-    createOrUpdateRestaurant,
+    createRestaurant,
+    updateRestaurant,
     getMyRestaurant,
     getRestaurants,
     createMenuItem,
@@ -11,19 +12,46 @@ const {
     toggleMenuItemFavorite,
 } = require('./queries.js');
 
+const normalizeOptionalText = value => {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+};
+
+const resolveRestaurantLogoUrl = params => {
+    const logoCandidates = [
+        params.logoUrl,
+        params.photoUrl,
+        params.logo,
+        params.photo,
+    ];
+
+    for (const candidate of logoCandidates) {
+        const normalized = normalizeOptionalText(candidate);
+        if (normalized) {
+            return normalized;
+        }
+    }
+
+    return null;
+};
+
 class FoodService {
     createOrUpdateRestaurant({params}) {
         const queryParams = {
             ...params,
             description: params.description || '',
-            logoUrl: params.logoUrl || null,
-            phone: params.phone || null,
-            whatsapp: params.whatsapp || null,
-            telegram: params.telegram || null,
+            logoUrl: resolveRestaurantLogoUrl(params),
+            phone: normalizeOptionalText(params.phone),
+            whatsapp: normalizeOptionalText(params.whatsapp),
+            telegram: normalizeOptionalText(params.telegram),
         };
 
         return Story.dbAdapter.execQuery({
-            queryName: createOrUpdateRestaurant,
+            queryName: Number.isInteger(params.restaurantId) ? updateRestaurant : createRestaurant,
             params: queryParams,
             options: {
                 singularRow: true,
@@ -63,9 +91,14 @@ class FoodService {
     }
 
     createMenuItem({params}) {
+        const queryParams = {
+            ...params,
+            restaurantId: Number.isInteger(params.restaurantId) ? params.restaurantId : null,
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: createMenuItem,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },

@@ -11,6 +11,7 @@ const createOrUpdateRestaurantSchema = {
     additionalItems: false,
     required: ['accountId', 'name'],
     properties: {
+        restaurantId: number1,
         accountId: number1,
         name: {
             type: 'string',
@@ -23,6 +24,9 @@ const createOrUpdateRestaurantSchema = {
             maxLength: 2000,
         },
         logoUrl: string1,
+        photoUrl: string1,
+        logo: string1,
+        photo: string1,
         phone: string1,
         whatsapp: string1,
         telegram: string1,
@@ -57,6 +61,7 @@ const createMenuItemSchema = {
     required: ['accountId', 'name', 'price'],
     properties: {
         accountId: number1,
+        restaurantId: number1,
         category: string1,
         name: {
             type: 'string',

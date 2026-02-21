@@ -1,5 +1,5 @@
 module.exports = {
-    createOrUpdateRestaurant: `
+    createRestaurant: `
         INSERT INTO restaurants (
              owner_account_id
             ,name
@@ -18,7 +18,21 @@ module.exports = {
             ,:whatsapp
             ,:telegram
         )
-        ON CONFLICT (owner_account_id) DO UPDATE SET
+        RETURNING
+             restaurant_id AS "restaurantId"
+            ,owner_account_id AS "accountId"
+            ,name
+            ,description
+            ,logo_url AS "logoUrl"
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
+    updateRestaurant: `
+        UPDATE restaurants
+        SET
              name = :name
             ,description = :description
             ,logo_url = :logoUrl
@@ -26,6 +40,9 @@ module.exports = {
             ,whatsapp = :whatsapp
             ,telegram = :telegram
             ,updated_at = NOW()
+        WHERE
+            restaurant_id = :restaurantId
+            AND owner_account_id = :accountId
         RETURNING
              restaurant_id AS "restaurantId"
             ,owner_account_id AS "accountId"
@@ -53,7 +70,10 @@ module.exports = {
         FROM
             restaurants
         WHERE
-            owner_account_id = :accountId;`,
+            owner_account_id = :accountId
+        ORDER BY
+            restaurant_id DESC
+        LIMIT 1;`,
 
     getRestaurants: `
         SELECT
@@ -81,6 +101,18 @@ module.exports = {
         OFFSET :offset::int;`,
 
     createMenuItem: `
+        WITH target_restaurant AS (
+            SELECT
+                r.restaurant_id
+            FROM
+                restaurants AS r
+            WHERE
+                r.owner_account_id = :accountId
+                AND (:restaurantId::bigint IS NULL OR r.restaurant_id = :restaurantId::bigint)
+            ORDER BY
+                r.restaurant_id DESC
+            LIMIT 1
+        )
         INSERT INTO menu_items (
              restaurant_id
             ,category
@@ -94,7 +126,7 @@ module.exports = {
             ,photos
         )
         SELECT
-             r.restaurant_id
+             tr.restaurant_id
             ,:category
             ,:name
             ,:description
@@ -105,9 +137,7 @@ module.exports = {
             ,COALESCE(:isAvailable, TRUE)
             ,COALESCE(:photos, '[]'::jsonb)
         FROM
-            restaurants AS r
-        WHERE
-            r.owner_account_id = :accountId
+            target_restaurant AS tr
         RETURNING
              menu_item_id AS "menuItemId"
             ,restaurant_id AS "restaurantId"
