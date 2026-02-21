@@ -28,7 +28,7 @@ module.exports = {
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
-    getAuthAccountByLogin: `
+    getAuthAccountByPhone: `
         SELECT
              account_id AS "accountId"
             ,name
@@ -41,8 +41,7 @@ module.exports = {
         FROM
             accounts
         WHERE
-            phone = :login
-            OR LOWER(nickname) = LOWER(:login)
+            phone = :phone
         LIMIT 1;`,
 
     createSession: `

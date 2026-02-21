@@ -33,9 +33,13 @@ const registerSchema = {
 const signInSchema = {
     id: 'signInSchema',
     additionalItems: false,
-    required: ['login', 'password'],
+    required: ['phone', 'password'],
     properties: {
-        login: string1,
+        phone: {
+            type: 'string',
+            minLength: 6,
+            maxLength: 20,
+        },
         password: {
             type: 'string',
             minLength: 6,

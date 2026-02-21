@@ -2,7 +2,7 @@ const {Story} = require('story-system');
 const crypto = require('crypto');
 const {
     createAccount,
-    getAuthAccountByLogin,
+    getAuthAccountByPhone,
     createSession,
     getSession,
     signOut,
@@ -75,9 +75,9 @@ class AccountService {
 
     async signIn({params}) {
         const authAccount = await Story.dbAdapter.execQuery({
-            queryName: getAuthAccountByLogin,
+            queryName: getAuthAccountByPhone,
             params: {
-                login: params.login,
+                phone: params.phone,
             },
             options: {
                 singularRow: true,
