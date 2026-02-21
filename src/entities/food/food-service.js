@@ -39,6 +39,14 @@ const resolveRestaurantLogoUrl = params => {
     return null;
 };
 
+const normalizePhotos = params => {
+    if (!Object.prototype.hasOwnProperty.call(params, 'photos') || params.photos === null) {
+        return null;
+    }
+
+    return JSON.stringify(params.photos);
+};
+
 class FoodService {
     createOrUpdateRestaurant({params}) {
         const queryParams = {
@@ -95,6 +103,7 @@ class FoodService {
         const queryParams = {
             ...params,
             restaurantId: Number.isInteger(params.restaurantId) ? params.restaurantId : null,
+            photos: normalizePhotos(params),
         };
 
         return Story.dbAdapter.execQuery({
@@ -107,9 +116,14 @@ class FoodService {
     }
 
     updateMenuItem({params}) {
+        const queryParams = {
+            ...params,
+            photos: normalizePhotos(params),
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: updateMenuItem,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
