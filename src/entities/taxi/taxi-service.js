@@ -54,7 +54,11 @@ class TaxiService {
         });
     }
 
-    getMyTaxiOffers({params}) {
+    getMyTaxiOffers({params = {}}) {
+        if (!Number.isInteger(params.accountId) || params.accountId < 1) {
+            return [];
+        }
+
         const queryParams = {
             ...params,
             limit: params.limit || 20,

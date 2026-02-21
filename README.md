@@ -25,36 +25,36 @@ http://127.0.0.1:3002/ircom-api/v1
 ## Основные методы
 
 ### account
-- `register`
-- `signIn`
-- `getSession`
-- `signOut`
-- `createOrUpdateAccount`
-- `getProfile`
+- `register` — регистрирует нового пользователя по имени, телефону и паролю.
+- `signIn` — выполняет вход и возвращает сессию пользователя.
+- `getSession` — проверяет и возвращает данные активной сессии по `sessionToken`.
+- `signOut` — завершает сессию пользователя по `sessionToken`.
+- `createOrUpdateAccount` — создаёт или обновляет профиль аккаунта (имя, контакты).
+- `getProfile` — возвращает публичные/профильные данные аккаунта по `accountId`.
 
 ### listing
-- `createListing`
-- `updateListing`
-- `getListings`
-- `getListingById`
-- `getMyListings`
-- `toggleListingFavorite`
+- `createListing` — создаёт новое объявление/услугу от имени пользователя.
+- `updateListing` — обновляет существующее объявление пользователя.
+- `getListings` — возвращает список объявлений с фильтрами, сортировкой и пагинацией.
+- `getListingById` — возвращает детальную карточку объявления по `listingId`.
+- `getMyListings` — возвращает объявления, созданные конкретным пользователем.
+- `toggleListingFavorite` — добавляет или убирает объявление из избранного пользователя.
 
 ### taxi
-- `createTaxiOffer`
-- `updateTaxiOffer`
-- `getTaxiOffers`
-- `getTaxiOfferById`
-- `getMyTaxiOffers`
-- `toggleTaxiFavorite`
+- `createTaxiOffer` — создаёт новое предложение такси (город/межгород/груз).
+- `updateTaxiOffer` — обновляет существующее предложение такси пользователя.
+- `getTaxiOffers` — возвращает список предложений такси с фильтрами и пагинацией.
+- `getTaxiOfferById` — возвращает детальную карточку предложения такси.
+- `getMyTaxiOffers` — возвращает предложения такси, созданные текущим пользователем.
+- `toggleTaxiFavorite` — добавляет или убирает предложение такси из избранного.
 
 ### food
-- `createOrUpdateRestaurant`
-- `getMyRestaurant`
-- `getRestaurants`
-- `createMenuItem`
-- `updateMenuItem`
-- `deleteMenuItem`
-- `getMenuItems`
-- `getMenuItemById`
-- `toggleMenuItemFavorite`
+- `createOrUpdateRestaurant` — создаёт или обновляет профиль заведения пользователя.
+- `getMyRestaurant` — возвращает заведение, связанное с `accountId` пользователя.
+- `getRestaurants` — возвращает список заведений с сортировкой и пагинацией.
+- `createMenuItem` — создаёт новую позицию меню для заведения пользователя.
+- `updateMenuItem` — обновляет существующую позицию меню.
+- `deleteMenuItem` — удаляет позицию меню по `menuItemId`.
+- `getMenuItems` — возвращает список блюд с фильтрами, сортировкой и пагинацией.
+- `getMenuItemById` — возвращает детальную карточку блюда по `menuItemId`.
+- `toggleMenuItemFavorite` — добавляет или убирает блюдо из избранного пользователя.

@@ -1,4 +1,4 @@
-SET search_path TO "ircom-api";
+SET search_path TO public;
 
 DELETE FROM menu_item_favorites
 WHERE

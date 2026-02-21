@@ -1,4 +1,4 @@
-SET search_path TO "ircom-api";
+SET search_path TO public;
 
 DROP TABLE IF EXISTS menu_item_favorites;
 DROP TABLE IF EXISTS menu_items;

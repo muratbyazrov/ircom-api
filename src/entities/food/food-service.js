@@ -22,7 +22,11 @@ class FoodService {
         });
     }
 
-    getMyRestaurant({params}) {
+    getMyRestaurant({params = {}}) {
+        if (!Number.isInteger(params.accountId) || params.accountId < 1) {
+            return null;
+        }
+
         return Story.dbAdapter.execQuery({
             queryName: getMyRestaurant,
             params,

@@ -1,5 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS "ircom-api";
-SET search_path TO "ircom-api";
+SET search_path TO public;
 
 CREATE TABLE IF NOT EXISTS accounts (
     account_id       BIGSERIAL PRIMARY KEY,

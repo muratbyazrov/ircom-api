@@ -2,7 +2,7 @@ module.exports = {
     db: {
         host: '127.0.0.1',
         database: 'ircom-api',
-        schema: 'ircom-api',
+        schema: 'public',
         user: 'ircom-api-user',
         password: 'replace-me',
         port: 5432,
