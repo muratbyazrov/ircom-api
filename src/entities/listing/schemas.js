@@ -8,7 +8,7 @@ const listingPhoto = {
 
 const createListingSchema = {
     id: 'createListingSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'kind', 'category', 'title', 'description', 'price'],
     properties: {
         accountId: number1,
@@ -39,7 +39,7 @@ const createListingSchema = {
 
 const updateListingSchema = {
     id: 'updateListingSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'listingId', 'kind', 'category', 'title', 'description', 'price'],
     properties: {
         accountId: number1,
@@ -71,7 +71,7 @@ const updateListingSchema = {
 
 const getListingsSchema = {
     id: 'getListingsSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['kind'],
     properties: {
         kind: {enum: [1, 2]},
@@ -89,7 +89,7 @@ const getListingsSchema = {
 
 const getListingByIdSchema = {
     id: 'getListingByIdSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['listingId'],
     properties: {
         listingId: number1,
@@ -99,7 +99,7 @@ const getListingByIdSchema = {
 
 const getMyListingsSchema = {
     id: 'getMyListingsSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'kind'],
     properties: {
         accountId: number1,
@@ -115,7 +115,7 @@ const getMyListingsSchema = {
 
 const toggleListingFavoriteSchema = {
     id: 'toggleListingFavoriteSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'listingId'],
     properties: {
         accountId: number1,

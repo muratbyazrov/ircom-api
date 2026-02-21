@@ -2,7 +2,7 @@ const {Story: {validator: {schemaItems: {number1, string1}}}} = require('story-s
 
 const initPhotoUploadSchema = {
     id: 'initPhotoUploadSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'entityType', 'mimeType', 'byteSize'],
     properties: {
         accountId: number1,
@@ -29,7 +29,7 @@ const initPhotoUploadSchema = {
 
 const buildPhotoUrlSchema = {
     id: 'buildPhotoUrlSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['objectKey'],
     properties: {
         objectKey: string1,

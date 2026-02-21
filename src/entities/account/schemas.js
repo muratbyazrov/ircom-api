@@ -2,7 +2,7 @@ const {Story: {validator: {schemaItems: {number1, string1, nullOrString}}}} = re
 
 const registerSchema = {
     id: 'registerSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['name', 'phone', 'password'],
     properties: {
         name: {
@@ -27,7 +27,7 @@ const registerSchema = {
 
 const signInSchema = {
     id: 'signInSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['phone', 'password'],
     properties: {
         phone: {
@@ -45,7 +45,7 @@ const signInSchema = {
 
 const getSessionSchema = {
     id: 'getSessionSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['sessionToken'],
     properties: {
         sessionToken: string1,
@@ -54,7 +54,7 @@ const getSessionSchema = {
 
 const signOutSchema = {
     id: 'signOutSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['sessionToken'],
     properties: {
         sessionToken: string1,
@@ -63,7 +63,7 @@ const signOutSchema = {
 
 const createOrUpdateAccountSchema = {
     id: 'createOrUpdateAccountSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'name'],
     properties: {
         accountId: number1,
@@ -76,7 +76,7 @@ const createOrUpdateAccountSchema = {
 
 const getProfileSchema = {
     id: 'getProfileSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId'],
     properties: {
         accountId: number1,

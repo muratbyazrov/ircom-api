@@ -8,7 +8,7 @@ const photoItem = {
 
 const createOrUpdateRestaurantSchema = {
     id: 'createOrUpdateRestaurantSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'name'],
     properties: {
         restaurantId: number1,
@@ -35,7 +35,7 @@ const createOrUpdateRestaurantSchema = {
 
 const getMyRestaurantSchema = {
     id: 'getMyRestaurantSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId'],
     properties: {
         accountId: number1,
@@ -44,7 +44,7 @@ const getMyRestaurantSchema = {
 
 const getRestaurantsSchema = {
     id: 'getRestaurantsSchema',
-    additionalItems: false,
+    additionalProperties: false,
     properties: {
         sortBy: {enum: ['name_asc', 'date_desc']},
         limit,
@@ -57,7 +57,7 @@ const getRestaurantsSchema = {
 
 const createMenuItemSchema = {
     id: 'createMenuItemSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'name', 'price'],
     properties: {
         accountId: number1,
@@ -94,7 +94,7 @@ const createMenuItemSchema = {
 
 const updateMenuItemSchema = {
     id: 'updateMenuItemSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'menuItemId', 'name', 'price'],
     properties: {
         accountId: number1,
@@ -131,7 +131,7 @@ const updateMenuItemSchema = {
 
 const deleteMenuItemSchema = {
     id: 'deleteMenuItemSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'menuItemId'],
     properties: {
         accountId: number1,
@@ -141,7 +141,7 @@ const deleteMenuItemSchema = {
 
 const getMenuItemsSchema = {
     id: 'getMenuItemsSchema',
-    additionalItems: false,
+    additionalProperties: false,
     properties: {
         accountId: number1,
         restaurantId: number1,
@@ -160,7 +160,7 @@ const getMenuItemsSchema = {
 
 const getMenuItemByIdSchema = {
     id: 'getMenuItemByIdSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['menuItemId'],
     properties: {
         menuItemId: number1,
@@ -170,7 +170,7 @@ const getMenuItemByIdSchema = {
 
 const toggleMenuItemFavoriteSchema = {
     id: 'toggleMenuItemFavoriteSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'menuItemId'],
     properties: {
         accountId: number1,

@@ -1,5 +1,6 @@
 const {Story} = require('story-system');
 const crypto = require('crypto');
+const {promisify} = require('util');
 const {
     createAccount,
     getAuthAccountByPhone,
@@ -10,13 +11,21 @@ const {
     getProfile,
 } = require('./queries.js');
 
-const hashPassword = (password, salt) => crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+const pbkdf2Async = promisify(crypto.pbkdf2);
+const hashPassword = async (password, salt) => {
+    const derivedKey = await pbkdf2Async(password, salt, 100000, 64, 'sha512');
+    return derivedKey.toString('hex');
+};
 const createSalt = () => crypto.randomBytes(16).toString('hex');
 const createSessionToken = () => crypto.randomBytes(32).toString('hex');
 const isHexHash = value => typeof value === 'string' && /^[a-f0-9]+$/i.test(value) && value.length % 2 === 0;
 const safeCompareHexHashes = (left, right) => {
-    if (!isHexHash(left) || !isHexHash(right)) return false;
-    if (left.length !== right.length) return false;
+    if (!isHexHash(left) || !isHexHash(right)) {
+        return false;
+    }
+    if (left.length !== right.length) {
+        return false;
+    }
     return crypto.timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
 };
 
@@ -28,7 +37,7 @@ class AccountService {
         }
 
         const passwordSalt = createSalt();
-        const passwordHash = hashPassword(params.password, passwordSalt);
+        const passwordHash = await hashPassword(params.password, passwordSalt);
         let account;
 
         try {
@@ -73,10 +82,11 @@ class AccountService {
     }
 
     async signIn({params}) {
+        const phone = String(params.phone || '').trim();
         const authAccount = await Story.dbAdapter.execQuery({
             queryName: getAuthAccountByPhone,
             params: {
-                phone: params.phone,
+                phone,
             },
             options: {
                 singularRow: true,
@@ -87,7 +97,7 @@ class AccountService {
             throw new Story.errors.Forbidden('Неправильный логин или пароль');
         }
 
-        const actualHash = hashPassword(params.password, authAccount.passwordSalt);
+        const actualHash = await hashPassword(params.password, authAccount.passwordSalt);
         const isPasswordValid = safeCompareHexHashes(actualHash, authAccount.passwordHash);
 
         if (!isPasswordValid) {

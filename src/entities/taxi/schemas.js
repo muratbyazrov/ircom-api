@@ -8,7 +8,7 @@ const taxiPhoto = {
 
 const createTaxiOfferSchema = {
     id: 'createTaxiOfferSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'direction', 'displayName', 'phone', 'price'],
     properties: {
         accountId: number1,
@@ -53,7 +53,7 @@ const createTaxiOfferSchema = {
 
 const updateTaxiOfferSchema = {
     id: 'updateTaxiOfferSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'taxiOfferId', 'direction', 'displayName', 'phone', 'price'],
     properties: {
         accountId: number1,
@@ -99,8 +99,8 @@ const updateTaxiOfferSchema = {
 
 const getTaxiOffersSchema = {
     id: 'getTaxiOffersSchema',
-    additionalItems: false,
-    required: ['direction', 'limit'],
+    additionalProperties: false,
+    required: ['direction'],
     properties: {
         direction: {enum: [1, 2, 3]},
         accountId: number1,
@@ -116,7 +116,7 @@ const getTaxiOffersSchema = {
 
 const getTaxiOfferByIdSchema = {
     id: 'getTaxiOfferByIdSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['taxiOfferId'],
     properties: {
         taxiOfferId: number1,
@@ -126,8 +126,8 @@ const getTaxiOfferByIdSchema = {
 
 const getMyTaxiOffersSchema = {
     id: 'getMyTaxiOffersSchema',
-    additionalItems: false,
-    required: ['accountId', 'limit'],
+    additionalProperties: false,
+    required: ['accountId'],
     properties: {
         accountId: number1,
         direction: {enum: [1, 2, 3]},
@@ -142,7 +142,7 @@ const getMyTaxiOffersSchema = {
 
 const toggleTaxiFavoriteSchema = {
     id: 'toggleTaxiFavoriteSchema',
-    additionalItems: false,
+    additionalProperties: false,
     required: ['accountId', 'taxiOfferId'],
     properties: {
         accountId: number1,
