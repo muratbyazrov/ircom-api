@@ -8,11 +8,43 @@ const {
     toggleTaxiFavorite,
 } = require('./queries.js');
 
+const normalizeOptionalText = value => {
+    if (typeof value !== 'string') {
+        return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : null;
+};
+
+const normalizeOptionalInt = value => {
+    return Number.isInteger(value) ? value : null;
+};
+
+const normalizeCarPhotos = params => {
+    if (!Object.prototype.hasOwnProperty.call(params, 'carPhotos') || params.carPhotos === null) {
+        return null;
+    }
+    return JSON.stringify(params.carPhotos);
+};
+
+const normalizeTaxiParams = params => ({
+    ...params,
+    description: typeof params.description === 'string' ? params.description : '',
+    whatsapp: normalizeOptionalText(params.whatsapp),
+    telegram: normalizeOptionalText(params.telegram),
+    departureAt: normalizeOptionalText(params.departureAt),
+    seatsTotal: normalizeOptionalInt(params.seatsTotal),
+    seatsFree: normalizeOptionalInt(params.seatsFree),
+    carPhotos: normalizeCarPhotos(params),
+});
+
 class TaxiService {
     createTaxiOffer({params}) {
+        const queryParams = normalizeTaxiParams(params);
+
         return Story.dbAdapter.execQuery({
             queryName: createTaxiOffer,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
@@ -20,9 +52,11 @@ class TaxiService {
     }
 
     updateTaxiOffer({params}) {
+        const queryParams = normalizeTaxiParams(params);
+
         return Story.dbAdapter.execQuery({
             queryName: updateTaxiOffer,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
