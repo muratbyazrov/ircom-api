@@ -72,7 +72,7 @@ const updateListingSchema = {
 const getListingsSchema = {
     id: 'getListingsSchema',
     additionalItems: false,
-    required: ['kind', 'limit'],
+    required: ['kind'],
     properties: {
         kind: {enum: [1, 2]},
         category: string1,
@@ -100,7 +100,7 @@ const getListingByIdSchema = {
 const getMyListingsSchema = {
     id: 'getMyListingsSchema',
     additionalItems: false,
-    required: ['accountId', 'kind', 'limit'],
+    required: ['accountId', 'kind'],
     properties: {
         accountId: number1,
         kind: {enum: [1, 2]},

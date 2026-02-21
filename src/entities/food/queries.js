@@ -55,6 +55,31 @@ module.exports = {
         WHERE
             owner_account_id = :accountId;`,
 
+    getRestaurants: `
+        SELECT
+             r.restaurant_id AS "restaurantId"
+            ,r.name
+            ,r.description
+            ,r.logo_url AS "logoUrl"
+            ,r.phone
+            ,r.whatsapp
+            ,r.telegram
+            ,r.created_at AS "createdAt"
+            ,COUNT(m.menu_item_id)::int AS "menuItemsCount"
+        FROM
+            restaurants AS r
+            LEFT JOIN menu_items AS m
+                ON m.restaurant_id = r.restaurant_id
+                AND m.is_active = TRUE
+        GROUP BY
+            r.restaurant_id
+        ORDER BY
+            CASE WHEN :sortBy = 'name_asc' THEN r.name END ASC,
+            CASE WHEN :sortBy = 'date_desc' THEN r.created_at END DESC,
+            r.restaurant_id DESC
+        LIMIT :limit
+        OFFSET :offset;`,
+
     createMenuItem: `
         INSERT INTO menu_items (
              restaurant_id

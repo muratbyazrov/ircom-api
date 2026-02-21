@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     createOrUpdateRestaurant,
     getMyRestaurant,
+    getRestaurants,
     createMenuItem,
     updateMenuItem,
     deleteMenuItem,
@@ -28,6 +29,20 @@ class FoodService {
             options: {
                 singularRow: true,
             },
+        });
+    }
+
+    getRestaurants({params = {}}) {
+        const queryParams = {
+            ...params,
+            limit: params.limit || 20,
+            offset: params.offset || 0,
+            sortBy: params.sortBy || 'date_desc',
+        };
+
+        return Story.dbAdapter.execQuery({
+            queryName: getRestaurants,
+            params: queryParams,
         });
     }
 
@@ -61,7 +76,7 @@ class FoodService {
         });
     }
 
-    getMenuItems({params}) {
+    getMenuItems({params = {}}) {
         const queryParams = {
             ...params,
             limit: params.limit || 20,

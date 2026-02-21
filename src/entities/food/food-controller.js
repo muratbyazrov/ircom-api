@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     createOrUpdateRestaurantSchema,
     getMyRestaurantSchema,
+    getRestaurantsSchema,
     createMenuItemSchema,
     updateMenuItemSchema,
     deleteMenuItemSchema,
@@ -23,6 +24,11 @@ class FoodController {
     getMyRestaurant(data) {
         Story.validator.validate(data.params, getMyRestaurantSchema);
         return this.service.getMyRestaurant(data);
+    }
+
+    getRestaurants(data) {
+        Story.validator.validate(data.params, getRestaurantsSchema);
+        return this.service.getRestaurants(data);
     }
 
     createMenuItem(data) {

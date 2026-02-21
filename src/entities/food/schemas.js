@@ -38,6 +38,19 @@ const getMyRestaurantSchema = {
     },
 };
 
+const getRestaurantsSchema = {
+    id: 'getRestaurantsSchema',
+    additionalItems: false,
+    properties: {
+        sortBy: {enum: ['name_asc', 'date_desc']},
+        limit,
+        offset: {
+            type: 'integer',
+            minimum: 0,
+        },
+    },
+};
+
 const createMenuItemSchema = {
     id: 'createMenuItemSchema',
     additionalItems: false,
@@ -124,7 +137,6 @@ const deleteMenuItemSchema = {
 const getMenuItemsSchema = {
     id: 'getMenuItemsSchema',
     additionalItems: false,
-    required: ['limit'],
     properties: {
         accountId: number1,
         restaurantId: number1,
@@ -164,6 +176,7 @@ const toggleMenuItemFavoriteSchema = {
 module.exports = {
     createOrUpdateRestaurantSchema,
     getMyRestaurantSchema,
+    getRestaurantsSchema,
     createMenuItemSchema,
     updateMenuItemSchema,
     deleteMenuItemSchema,

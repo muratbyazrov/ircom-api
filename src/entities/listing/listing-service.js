@@ -29,7 +29,7 @@ class ListingService {
         });
     }
 
-    getListings({params}) {
+    getListings({params = {}}) {
         const queryParams = {
             ...params,
             limit: params.limit || 20,
@@ -54,7 +54,7 @@ class ListingService {
         });
     }
 
-    getMyListings({params}) {
+    getMyListings({params = {}}) {
         const queryParams = {
             ...params,
             limit: params.limit || 20,

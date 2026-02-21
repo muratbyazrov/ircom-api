@@ -51,6 +51,7 @@ http://127.0.0.1:3002/ircom-api/v1
 ### food
 - `createOrUpdateRestaurant`
 - `getMyRestaurant`
+- `getRestaurants`
 - `createMenuItem`
 - `updateMenuItem`
 - `deleteMenuItem`
