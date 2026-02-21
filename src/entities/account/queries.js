@@ -37,7 +37,7 @@ module.exports = {
         FROM
             accounts
         WHERE
-            phone = :phone
+            regexp_replace(COALESCE(phone, ''), '\s+', '', 'g') = :phone
         LIMIT 1;`,
 
     createSession: `

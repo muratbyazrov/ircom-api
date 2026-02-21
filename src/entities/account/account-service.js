@@ -29,9 +29,18 @@ const safeCompareHexHashes = (left, right) => {
     return crypto.timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
 };
 
+const normalizePhone = value => {
+    if (typeof value !== 'string') {
+        return '';
+    }
+
+    // Store phone in a single canonical representation without spaces.
+    return value.replace(/\s+/g, '').trim();
+};
+
 class AccountService {
     async register({params}) {
-        const phone = String(params.phone || '').trim();
+        const phone = normalizePhone(params.phone);
         if (!phone) {
             throw new Story.errors.BadRequestError('Phone is required');
         }
@@ -82,7 +91,10 @@ class AccountService {
     }
 
     async signIn({params}) {
-        const phone = String(params.phone || '').trim();
+        const phone = normalizePhone(params.phone);
+        if (!phone) {
+            throw new Story.errors.Forbidden('Неправильный логин или пароль');
+        }
         const authAccount = await Story.dbAdapter.execQuery({
             queryName: getAuthAccountByPhone,
             params: {
@@ -150,12 +162,24 @@ class AccountService {
     }
 
     createOrUpdateAccount({params}) {
+        const queryParams = {
+            ...params,
+            phone: params.phone === null || typeof params.phone === 'undefined'
+                ? null
+                : normalizePhone(params.phone),
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: createOrUpdateAccount,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
+        }).catch(error => {
+            if (error && error.code === '23505') {
+                throw new Story.errors.BadRequestError('Account with this phone already exists');
+            }
+            throw error;
         });
     }
 
