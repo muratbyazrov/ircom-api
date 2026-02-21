@@ -62,6 +62,15 @@ const buildPublicUrl = ({publicBaseUrl, objectKey}) => {
     if (!base) return null;
     return `${base}/${encodeRfc3986(objectKey).replace(/%2F/g, '/')}`;
 };
+const buildDefaultAwsPublicUrl = ({bucket, region, objectKey}) => {
+    const normalizedBucket = String(bucket || '').trim();
+    const normalizedRegion = normalizeRegion(region);
+    const normalizedKey = String(objectKey || '').trim();
+    if (!normalizedBucket || !normalizedKey) {
+        return null;
+    }
+    return `https://${normalizedBucket}.s3.${normalizedRegion}.amazonaws.com/${encodeRfc3986(normalizedKey).replace(/%2F/g, '/')}`;
+};
 
 class MediaService {
     constructor(config = {}) {
@@ -106,17 +115,22 @@ class MediaService {
     }
 
     buildPhotoUrl({params}) {
-        const {publicBaseUrl} = this.getS3Config();
+        const {publicBaseUrl, bucket, region} = this.getS3Config();
         if (/^https?:\/\//i.test(params.objectKey)) {
             return {
                 objectKey: params.objectKey,
                 photoUrl: params.objectKey,
             };
         }
+        const explicitPublicUrl = buildPublicUrl({
+            publicBaseUrl,
+            objectKey: params.objectKey,
+        });
         return {
             objectKey: params.objectKey,
-            photoUrl: buildPublicUrl({
-                publicBaseUrl,
+            photoUrl: explicitPublicUrl || buildDefaultAwsPublicUrl({
+                bucket,
+                region,
                 objectKey: params.objectKey,
             }),
         };
@@ -194,6 +208,10 @@ class MediaService {
             },
             photoUrl: buildPublicUrl({
                 publicBaseUrl: config.publicBaseUrl,
+                objectKey,
+            }) || buildDefaultAwsPublicUrl({
+                bucket: config.bucket,
+                region: config.region,
                 objectKey,
             }),
         };

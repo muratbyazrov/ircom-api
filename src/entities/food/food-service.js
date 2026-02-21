@@ -24,8 +24,8 @@ const normalizeOptionalText = value => {
 const resolveRestaurantLogoUrl = params => {
     const logoCandidates = [
         params.logoUrl,
-        params.photoUrl,
         params.logo,
+        params.photoUrl,
         params.photo,
     ];
 
