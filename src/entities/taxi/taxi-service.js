@@ -29,13 +29,13 @@ class TaxiService {
         });
     }
 
-    getTaxiOffers({params}) {
+    getTaxiOffers({params = {}}) {
         const queryParams = {
             ...params,
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',
-            onlyFavorites: params.onlyFavorites ? 1 : undefined,
+            ...(params.onlyFavorites ? {onlyFavorites: 1} : {}),
         };
 
         return Story.dbAdapter.execQuery({

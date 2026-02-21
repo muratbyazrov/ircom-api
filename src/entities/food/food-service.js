@@ -86,9 +86,9 @@ class FoodService {
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',
-            hasDelivery: params.hasDelivery ? 1 : undefined,
-            onlyAvailable: params.onlyAvailable ? 1 : undefined,
-            onlyFavorites: params.onlyFavorites ? 1 : undefined,
+            ...(params.hasDelivery ? {hasDelivery: 1} : {}),
+            ...(params.onlyAvailable ? {onlyAvailable: 1} : {}),
+            ...(params.onlyFavorites ? {onlyFavorites: 1} : {}),
         };
 
         return Story.dbAdapter.execQuery({
