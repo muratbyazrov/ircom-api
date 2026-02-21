@@ -10,11 +10,6 @@ const registerSchema = {
             minLength: 2,
             maxLength: 80,
         },
-        nickname: {
-            type: 'string',
-            minLength: 3,
-            maxLength: 40,
-        },
         phone: {
             type: 'string',
             minLength: 6,
@@ -73,7 +68,6 @@ const createOrUpdateAccountSchema = {
     properties: {
         accountId: number1,
         name: string1,
-        nickname: nullOrString,
         phone: nullOrString,
         whatsapp: nullOrString,
         telegram: nullOrString,

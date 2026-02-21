@@ -2,7 +2,6 @@ module.exports = {
     createAccount: `
         INSERT INTO accounts (
              name
-            ,nickname
             ,phone
             ,password_hash
             ,password_salt
@@ -11,7 +10,6 @@ module.exports = {
         )
         VALUES (
              :name
-            ,:nickname
             ,:phone
             ,:passwordHash
             ,:passwordSalt
@@ -21,7 +19,6 @@ module.exports = {
         RETURNING
              account_id AS "accountId"
             ,name
-            ,nickname
             ,phone
             ,whatsapp
             ,telegram
@@ -32,7 +29,6 @@ module.exports = {
         SELECT
              account_id AS "accountId"
             ,name
-            ,nickname
             ,phone
             ,whatsapp
             ,telegram
@@ -65,7 +61,6 @@ module.exports = {
             ,s.expires_at AS "expiresAt"
             ,a.account_id AS "accountId"
             ,a.name
-            ,a.nickname
             ,a.phone
             ,a.whatsapp
             ,a.telegram
@@ -86,7 +81,6 @@ module.exports = {
         UPDATE accounts
         SET
              name = :name
-            ,nickname = :nickname
             ,phone = :phone
             ,whatsapp = :whatsapp
             ,telegram = :telegram
@@ -96,7 +90,6 @@ module.exports = {
         RETURNING
              account_id AS "accountId"
             ,name
-            ,nickname
             ,phone
             ,whatsapp
             ,telegram
@@ -107,7 +100,6 @@ module.exports = {
         SELECT
              account_id AS "accountId"
             ,name
-            ,nickname
             ,phone
             ,whatsapp
             ,telegram

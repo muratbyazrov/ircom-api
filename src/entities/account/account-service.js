@@ -13,7 +13,7 @@ const {
 const hashPassword = (password, salt) => crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
 const createSalt = () => crypto.randomBytes(16).toString('hex');
 const createSessionToken = () => crypto.randomBytes(32).toString('hex');
-const isHexHash = (value) => typeof value === 'string' && /^[a-f0-9]+$/i.test(value) && value.length % 2 === 0;
+const isHexHash = value => typeof value === 'string' && /^[a-f0-9]+$/i.test(value) && value.length % 2 === 0;
 const safeCompareHexHashes = (left, right) => {
     if (!isHexHash(left) || !isHexHash(right)) return false;
     if (left.length !== right.length) return false;
@@ -36,7 +36,6 @@ class AccountService {
                 queryName: createAccount,
                 params: {
                     name: params.name,
-                    nickname: params.nickname || null,
                     phone,
                     passwordHash,
                     passwordSalt,
@@ -49,7 +48,7 @@ class AccountService {
             });
         } catch (error) {
             if (error && error.code === '23505') {
-                throw new Story.errors.BadRequestError('Account with this phone or nickname already exists');
+                throw new Story.errors.BadRequestError('Account with this phone already exists');
             }
             throw error;
         }
@@ -113,7 +112,6 @@ class AccountService {
             account: {
                 accountId: authAccount.accountId,
                 name: authAccount.name,
-                nickname: authAccount.nickname,
                 phone: authAccount.phone,
                 whatsapp: authAccount.whatsapp,
                 telegram: authAccount.telegram,

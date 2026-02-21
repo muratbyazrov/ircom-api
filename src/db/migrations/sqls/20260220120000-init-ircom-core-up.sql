@@ -4,7 +4,6 @@ SET search_path TO "ircom-api";
 CREATE TABLE IF NOT EXISTS accounts (
     account_id       BIGSERIAL PRIMARY KEY,
     name             TEXT NOT NULL,
-    nickname         TEXT UNIQUE,
     phone            TEXT UNIQUE,
     password_hash    TEXT NOT NULL,
     password_salt    TEXT NOT NULL,
