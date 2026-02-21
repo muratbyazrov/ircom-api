@@ -19,6 +19,7 @@ module.exports = {
         keyPrefix: process.env.IRCOM_S3_KEY_PREFIX || 'ircom/photos',
         uploadEndpoint: process.env.IRCOM_S3_UPLOAD_ENDPOINT || '',
         publicBaseUrl: process.env.IRCOM_S3_PUBLIC_BASE_URL || '',
+        objectAcl: process.env.IRCOM_S3_OBJECT_ACL || '',
         accessKeyId: process.env.IRCOM_S3_ACCESS_KEY_ID || '',
         secretAccessKey: process.env.IRCOM_S3_SECRET_ACCESS_KEY || '',
         sessionToken: process.env.IRCOM_S3_SESSION_TOKEN || '',

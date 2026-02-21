@@ -25,7 +25,7 @@ const toInt = (value, fallback) => {
     if (!Number.isFinite(parsed)) return fallback;
     return Math.trunc(parsed);
 };
-const mapMimeToExt = (mimeType) => {
+const mapMimeToExt = mimeType => {
     const map = {
         'image/jpeg': 'jpg',
         'image/png': 'png',
@@ -37,7 +37,7 @@ const mapMimeToExt = (mimeType) => {
     };
     return map[mimeType] || 'bin';
 };
-const safeNamePart = (value) => String(value || '')
+const safeNamePart = value => String(value || '')
     .toLowerCase()
     .replace(/\.[a-z0-9]{1,10}$/i, '')
     .replace(/[^a-z0-9_-]+/g, '-')
@@ -87,6 +87,7 @@ class MediaService {
         const keyPrefix = normalizePrefix(process.env.IRCOM_S3_KEY_PREFIX || mediaConfig.keyPrefix, 'ircom/photos');
         const endpoint = String(process.env.IRCOM_S3_UPLOAD_ENDPOINT || mediaConfig.uploadEndpoint || '').trim();
         const publicBaseUrl = String(process.env.IRCOM_S3_PUBLIC_BASE_URL || mediaConfig.publicBaseUrl || '').trim();
+        const objectAcl = String(process.env.IRCOM_S3_OBJECT_ACL || mediaConfig.objectAcl || '').trim();
         const maxUploadBytes = Math.min(
             MAX_UPLOAD_BYTES,
             Math.max(1, toInt(process.env.IRCOM_S3_MAX_UPLOAD_BYTES || mediaConfig.maxUploadBytes, DEFAULT_UPLOAD_BYTES)),
@@ -109,6 +110,7 @@ class MediaService {
             keyPrefix,
             endpoint,
             publicBaseUrl,
+            objectAcl,
             maxUploadBytes,
             expiresSeconds,
         };
@@ -174,6 +176,9 @@ class MediaService {
         if (config.sessionToken) {
             conditions.push({'x-amz-security-token': config.sessionToken});
         }
+        if (config.objectAcl) {
+            conditions.push({acl: config.objectAcl});
+        }
         const policy = Buffer.from(JSON.stringify({expiration, conditions})).toString('base64');
         const signingKey = getSignatureKey({
             secretAccessKey: config.secretAccessKey,
@@ -184,13 +189,14 @@ class MediaService {
         const signature = crypto.createHmac('sha256', signingKey).update(policy).digest('hex');
 
         const fields = {
-            key: objectKey,
+            'key': objectKey,
             'Content-Type': mimeType,
             policy,
             'x-amz-algorithm': 'AWS4-HMAC-SHA256',
             'x-amz-credential': `${config.accessKeyId}/${scope}`,
             'x-amz-date': amzDate,
             'x-amz-signature': signature,
+            ...(config.objectAcl ? {acl: config.objectAcl} : {}),
             ...(config.sessionToken ? {'x-amz-security-token': config.sessionToken} : {}),
         };
 

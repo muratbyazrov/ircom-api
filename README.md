@@ -74,6 +74,7 @@ IRCOM_S3_SESSION_TOKEN=... # optional
 IRCOM_S3_KEY_PREFIX=ircom/photos
 IRCOM_S3_UPLOAD_ENDPOINT= # optional, для S3-compatible
 IRCOM_S3_PUBLIC_BASE_URL=https://cdn.example.com
+IRCOM_S3_OBJECT_ACL=public-read # optional, если объектам нужен публичный read через ACL
 IRCOM_S3_MAX_UPLOAD_BYTES=10485760
 IRCOM_S3_UPLOAD_EXPIRES_SECONDS=300
 ```
