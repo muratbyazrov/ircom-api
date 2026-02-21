@@ -13,12 +13,18 @@ const {
 const hashPassword = (password, salt) => crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
 const createSalt = () => crypto.randomBytes(16).toString('hex');
 const createSessionToken = () => crypto.randomBytes(32).toString('hex');
+const isHexHash = (value) => typeof value === 'string' && /^[a-f0-9]+$/i.test(value) && value.length % 2 === 0;
+const safeCompareHexHashes = (left, right) => {
+    if (!isHexHash(left) || !isHexHash(right)) return false;
+    if (left.length !== right.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
+};
 
 class AccountService {
     async register({params}) {
         const phone = String(params.phone || '').trim();
         if (!phone) {
-            throw new Error('Phone is required');
+            throw new Story.errors.BadRequestError('Phone is required');
         }
 
         const passwordSalt = createSalt();
@@ -43,7 +49,7 @@ class AccountService {
             });
         } catch (error) {
             if (error && error.code === '23505') {
-                throw new Error('Account with this phone or nickname already exists');
+                throw new Story.errors.BadRequestError('Account with this phone or nickname already exists');
             }
             throw error;
         }
@@ -79,17 +85,14 @@ class AccountService {
         });
 
         if (!authAccount) {
-            throw new Error('Invalid login or password');
+            throw new Story.errors.Forbidden('Неправильный логин или пароль');
         }
 
         const actualHash = hashPassword(params.password, authAccount.passwordSalt);
-        const isPasswordValid = crypto.timingSafeEqual(
-            Buffer.from(actualHash, 'hex'),
-            Buffer.from(authAccount.passwordHash, 'hex'),
-        );
+        const isPasswordValid = safeCompareHexHashes(actualHash, authAccount.passwordHash);
 
         if (!isPasswordValid) {
-            throw new Error('Invalid login or password');
+            throw new Story.errors.Forbidden('Неправильный логин или пароль');
         }
 
         const sessionToken = createSessionToken();
