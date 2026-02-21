@@ -43,6 +43,7 @@ class FoodService {
     createOrUpdateRestaurant({params}) {
         const queryParams = {
             ...params,
+            address: normalizeOptionalText(params.address),
             description: params.description || '',
             logoUrl: resolveRestaurantLogoUrl(params),
             phone: normalizeOptionalText(params.phone),

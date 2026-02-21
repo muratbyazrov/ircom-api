@@ -18,6 +18,11 @@ const createOrUpdateRestaurantSchema = {
             minLength: 2,
             maxLength: 100,
         },
+        address: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 200,
+        },
         description: {
             type: 'string',
             minLength: 0,

@@ -3,6 +3,7 @@ module.exports = {
         INSERT INTO restaurants (
              owner_account_id
             ,name
+            ,address
             ,description
             ,logo_url
             ,phone
@@ -12,6 +13,7 @@ module.exports = {
         VALUES (
              :accountId
             ,:name
+            ,:address
             ,:description
             ,:logoUrl
             ,:phone
@@ -22,6 +24,7 @@ module.exports = {
              restaurant_id AS "restaurantId"
             ,owner_account_id AS "accountId"
             ,name
+            ,address
             ,description
             ,logo_url AS "logoUrl"
             ,phone
@@ -34,6 +37,7 @@ module.exports = {
         UPDATE restaurants
         SET
              name = :name
+            ,address = :address
             ,description = :description
             ,logo_url = :logoUrl
             ,phone = :phone
@@ -47,6 +51,7 @@ module.exports = {
              restaurant_id AS "restaurantId"
             ,owner_account_id AS "accountId"
             ,name
+            ,address
             ,description
             ,logo_url AS "logoUrl"
             ,phone
@@ -60,6 +65,7 @@ module.exports = {
              restaurant_id AS "restaurantId"
             ,owner_account_id AS "accountId"
             ,name
+            ,address
             ,description
             ,logo_url AS "logoUrl"
             ,phone
@@ -79,6 +85,7 @@ module.exports = {
         SELECT
              r.restaurant_id AS "restaurantId"
             ,r.name
+            ,r.address
             ,r.description
             ,r.logo_url AS "logoUrl"
             ,r.phone
@@ -216,6 +223,7 @@ module.exports = {
             ,m.photos
             ,m.created_at AS "createdAt"
             ,r.name AS "restaurantName"
+            ,r.address AS "restaurantAddress"
             ,r.logo_url AS "restaurantLogoUrl"
             ,r.phone
             ,r.whatsapp
@@ -258,6 +266,7 @@ module.exports = {
             ,m.photos
             ,m.created_at AS "createdAt"
             ,r.name AS "restaurantName"
+            ,r.address AS "restaurantAddress"
             ,r.logo_url AS "restaurantLogoUrl"
             ,r.phone
             ,r.whatsapp
