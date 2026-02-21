@@ -13,9 +13,18 @@ const {
 
 class FoodService {
     createOrUpdateRestaurant({params}) {
+        const queryParams = {
+            ...params,
+            description: params.description || '',
+            logoUrl: params.logoUrl || null,
+            phone: params.phone || null,
+            whatsapp: params.whatsapp || null,
+            telegram: params.telegram || null,
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: createOrUpdateRestaurant,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },
@@ -37,11 +46,14 @@ class FoodService {
     }
 
     getRestaurants({params = {}}) {
+        const sortBy = params.sortBy || 'date_desc';
+        const restParams = {...params};
+        delete restParams.sortBy;
         const queryParams = {
-            ...params,
+            ...restParams,
             limit: params.limit || 20,
             offset: params.offset || 0,
-            sortBy: params.sortBy || 'date_desc',
+            ...(sortBy === 'name_asc' ? {sortNameAsc: 1} : {sortDateDesc: 1}),
         };
 
         return Story.dbAdapter.execQuery({
@@ -81,11 +93,17 @@ class FoodService {
     }
 
     getMenuItems({params = {}}) {
+        const sortBy = params.sortBy || 'date_desc';
+        const restParams = {...params};
+        delete restParams.sortBy;
         const queryParams = {
-            ...params,
+            ...restParams,
             limit: params.limit || 20,
             offset: params.offset || 0,
-            sortBy: params.sortBy || 'date_desc',
+            ...(sortBy === 'price_asc' ? {sortPriceAsc: 1} : {}),
+            ...(sortBy === 'price_desc' ? {sortPriceDesc: 1} : {}),
+            ...(sortBy === 'cook_time_asc' ? {sortCookTimeAsc: 1} : {}),
+            ...(!sortBy || sortBy === 'date_desc' ? {sortDateDesc: 1} : {}),
             ...(params.hasDelivery ? {hasDelivery: 1} : {}),
             ...(params.onlyAvailable ? {onlyAvailable: 1} : {}),
             ...(params.onlyFavorites ? {onlyFavorites: 1} : {}),

@@ -58,3 +58,22 @@ http://127.0.0.1:3002/ircom-api/v1
 - `getMenuItems` — возвращает список блюд с фильтрами, сортировкой и пагинацией.
 - `getMenuItemById` — возвращает детальную карточку блюда по `menuItemId`.
 - `toggleMenuItemFavorite` — добавляет или убирает блюдо из избранного пользователя.
+
+### media
+- `initPhotoUpload` — выдаёт `presigned POST` для прямой загрузки изображения в S3.
+- `buildPhotoUrl` — строит URL просмотра по `objectKey` (если настроен `IRCOM_S3_PUBLIC_BASE_URL`).
+
+## S3 ENV
+
+```text
+IRCOM_S3_BUCKET=your-bucket
+IRCOM_S3_REGION=eu-central-1
+IRCOM_S3_ACCESS_KEY_ID=...
+IRCOM_S3_SECRET_ACCESS_KEY=...
+IRCOM_S3_SESSION_TOKEN=... # optional
+IRCOM_S3_KEY_PREFIX=ircom/photos
+IRCOM_S3_UPLOAD_ENDPOINT= # optional, для S3-compatible
+IRCOM_S3_PUBLIC_BASE_URL=https://cdn.example.com
+IRCOM_S3_MAX_UPLOAD_BYTES=10485760
+IRCOM_S3_UPLOAD_EXPIRES_SECONDS=300
+```

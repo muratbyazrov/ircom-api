@@ -74,11 +74,11 @@ module.exports = {
         GROUP BY
             r.restaurant_id
         ORDER BY
-            CASE WHEN :sortBy = 'name_asc' THEN r.name END ASC,
-            CASE WHEN :sortBy = 'date_desc' THEN r.created_at END DESC,
+            /*sortNameAsc: r.name ASC, */
+            /*sortDateDesc: r.created_at DESC, */
             r.restaurant_id DESC
-        LIMIT :limit
-        OFFSET :offset;`,
+        LIMIT :limit::int
+        OFFSET :offset::int;`,
 
     createMenuItem: `
         INSERT INTO menu_items (
@@ -205,13 +205,13 @@ module.exports = {
             /*onlyAvailable: AND (m.always_in_stock = TRUE OR m.is_available = TRUE) */
             /*onlyFavorites: AND mf.account_id = :accountId */
         ORDER BY
-            CASE WHEN :sortBy = 'price_asc' THEN m.price END ASC,
-            CASE WHEN :sortBy = 'price_desc' THEN m.price END DESC,
-            CASE WHEN :sortBy = 'cook_time_asc' THEN m.cook_time_minutes END ASC,
-            CASE WHEN :sortBy = 'date_desc' THEN m.created_at END DESC,
+            /*sortPriceAsc: m.price ASC, */
+            /*sortPriceDesc: m.price DESC, */
+            /*sortCookTimeAsc: m.cook_time_minutes ASC, */
+            /*sortDateDesc: m.created_at DESC, */
             m.menu_item_id DESC
-        LIMIT :limit
-        OFFSET :offset;`,
+        LIMIT :limit::int
+        OFFSET :offset::int;`,
 
     getMenuItemById: `
         SELECT
