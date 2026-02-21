@@ -84,6 +84,19 @@ module.exports = {
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
+    deleteTaxiOffer: `
+        UPDATE taxi_offers
+        SET
+             is_active = FALSE
+            ,updated_at = NOW()
+        WHERE
+            taxi_offer_id = :taxiOfferId
+            AND owner_account_id = :accountId
+            AND is_active = TRUE
+        RETURNING
+             taxi_offer_id AS "taxiOfferId"
+            ,is_active AS "isActive";`,
+
     getTaxiOffers: `
         SELECT
              t.taxi_offer_id AS "taxiOfferId"

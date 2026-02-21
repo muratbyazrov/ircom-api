@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     createTaxiOfferSchema,
     updateTaxiOfferSchema,
+    deleteTaxiOfferSchema,
     getTaxiOffersSchema,
     getTaxiOfferByIdSchema,
     getMyTaxiOffersSchema,
@@ -21,6 +22,11 @@ class TaxiController {
     updateTaxiOffer(data) {
         Story.validator.validate(data.params, updateTaxiOfferSchema);
         return this.service.updateTaxiOffer(data);
+    }
+
+    deleteTaxiOffer(data) {
+        Story.validator.validate(data.params, deleteTaxiOfferSchema);
+        return this.service.deleteTaxiOffer(data);
     }
 
     getTaxiOffers(data) {

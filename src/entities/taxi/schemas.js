@@ -97,6 +97,16 @@ const updateTaxiOfferSchema = {
     },
 };
 
+const deleteTaxiOfferSchema = {
+    id: 'deleteTaxiOfferSchema',
+    additionalProperties: false,
+    required: ['accountId', 'taxiOfferId'],
+    properties: {
+        accountId: number1,
+        taxiOfferId: number1,
+    },
+};
+
 const getTaxiOffersSchema = {
     id: 'getTaxiOffersSchema',
     additionalProperties: false,
@@ -153,6 +163,7 @@ const toggleTaxiFavoriteSchema = {
 module.exports = {
     createTaxiOfferSchema,
     updateTaxiOfferSchema,
+    deleteTaxiOfferSchema,
     getTaxiOffersSchema,
     getTaxiOfferByIdSchema,
     getMyTaxiOffersSchema,

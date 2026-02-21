@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     createTaxiOffer,
     updateTaxiOffer,
+    deleteTaxiOffer,
     getTaxiOffers,
     getTaxiOfferById,
     getMyTaxiOffers,
@@ -57,6 +58,16 @@ class TaxiService {
         return Story.dbAdapter.execQuery({
             queryName: updateTaxiOffer,
             params: queryParams,
+            options: {
+                singularRow: true,
+            },
+        });
+    }
+
+    deleteTaxiOffer({params}) {
+        return Story.dbAdapter.execQuery({
+            queryName: deleteTaxiOffer,
+            params,
             options: {
                 singularRow: true,
             },
