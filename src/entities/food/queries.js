@@ -234,7 +234,7 @@ module.exports = {
             INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
             LEFT JOIN menu_item_favorites AS mf
                 ON mf.menu_item_id = m.menu_item_id
-                /*accountId: AND mf.account_id = :accountId */
+                AND mf.account_id = :accountId
         WHERE
             m.is_active = TRUE
             /*restaurantId: AND m.restaurant_id = :restaurantId */
@@ -277,7 +277,7 @@ module.exports = {
             INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
             LEFT JOIN menu_item_favorites AS mf
                 ON mf.menu_item_id = m.menu_item_id
-                /*accountId: AND mf.account_id = :accountId */
+                AND mf.account_id = :accountId
         WHERE
             m.menu_item_id = :menuItemId
             AND m.is_active = TRUE;`,

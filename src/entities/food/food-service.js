@@ -144,8 +144,10 @@ class FoodService {
         const sortBy = params.sortBy || 'date_desc';
         const restParams = {...params};
         delete restParams.sortBy;
+        const accountId = Number.isInteger(params.accountId) ? params.accountId : null;
         const queryParams = {
             ...restParams,
+            accountId,
             limit: params.limit || 20,
             offset: params.offset || 0,
             ...(sortBy === 'price_asc' ? {sortPriceAsc: 1} : {}),
@@ -164,9 +166,14 @@ class FoodService {
     }
 
     getMenuItemById({params}) {
+        const queryParams = {
+            ...params,
+            accountId: Number.isInteger(params.accountId) ? params.accountId : null,
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: getMenuItemById,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },

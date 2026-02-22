@@ -82,7 +82,7 @@ module.exports = {
             INNER JOIN accounts AS a ON a.account_id = l.owner_account_id
             LEFT JOIN listing_favorites AS lf
                 ON lf.listing_id = l.listing_id
-                /*accountId: AND lf.account_id = :accountId */
+                AND lf.account_id = :accountId
         WHERE
             l.is_active = TRUE
             AND l.kind = :kind
@@ -118,7 +118,7 @@ module.exports = {
             INNER JOIN accounts AS a ON a.account_id = l.owner_account_id
             LEFT JOIN listing_favorites AS lf
                 ON lf.listing_id = l.listing_id
-                /*accountId: AND lf.account_id = :accountId */
+                AND lf.account_id = :accountId
         WHERE
             l.listing_id = :listingId
             AND l.is_active = TRUE;`,

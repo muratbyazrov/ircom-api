@@ -131,9 +131,7 @@ const normalizeDepartureAt = value => {
     return null;
 };
 
-const normalizeOptionalInt = value => {
-    return Number.isInteger(value) ? value : null;
-};
+const normalizeOptionalInt = value => (Number.isInteger(value) ? value : null);
 
 const normalizeCarPhotos = params => {
     if (!Object.prototype.hasOwnProperty.call(params, 'carPhotos') || params.carPhotos === null) {
@@ -196,8 +194,10 @@ class TaxiService {
     }
 
     getTaxiOffers({params = {}}) {
+        const accountId = Number.isInteger(params.accountId) ? params.accountId : null;
         const queryParams = {
             ...params,
+            accountId,
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',
@@ -211,9 +211,14 @@ class TaxiService {
     }
 
     getTaxiOfferById({params}) {
+        const queryParams = {
+            ...params,
+            accountId: Number.isInteger(params.accountId) ? params.accountId : null,
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: getTaxiOfferById,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },

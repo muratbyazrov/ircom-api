@@ -50,8 +50,10 @@ class ListingService {
     }
 
     getListings({params = {}}) {
+        const accountId = Number.isInteger(params.accountId) ? params.accountId : null;
         const queryParams = {
             ...params,
+            accountId,
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',
@@ -65,9 +67,14 @@ class ListingService {
     }
 
     getListingById({params}) {
+        const queryParams = {
+            ...params,
+            accountId: Number.isInteger(params.accountId) ? params.accountId : null,
+        };
+
         return Story.dbAdapter.execQuery({
             queryName: getListingById,
-            params,
+            params: queryParams,
             options: {
                 singularRow: true,
             },

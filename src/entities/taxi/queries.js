@@ -119,7 +119,7 @@ module.exports = {
             taxi_offers AS t
             LEFT JOIN taxi_favorites AS tf
                 ON tf.taxi_offer_id = t.taxi_offer_id
-                /*accountId: AND tf.account_id = :accountId */
+                AND tf.account_id = :accountId
         WHERE
             t.is_active = TRUE
             AND t.direction = :direction
@@ -156,7 +156,7 @@ module.exports = {
             taxi_offers AS t
             LEFT JOIN taxi_favorites AS tf
                 ON tf.taxi_offer_id = t.taxi_offer_id
-                /*accountId: AND tf.account_id = :accountId */
+                AND tf.account_id = :accountId
         WHERE
             t.taxi_offer_id = :taxiOfferId
             AND t.is_active = TRUE;`,
