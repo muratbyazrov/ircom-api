@@ -376,7 +376,6 @@ class FoodService {
             offset: params.offset || 0,
             ...(sortBy === 'price_asc' ? {sortPriceAsc: 1} : {}),
             ...(sortBy === 'price_desc' ? {sortPriceDesc: 1} : {}),
-            ...(sortBy === 'cook_time_asc' ? {sortCookTimeAsc: 1} : {}),
             ...(!sortBy || sortBy === 'date_desc' ? {sortDateDesc: 1} : {}),
             ...(params.onlyAvailable ? {onlyAvailable: 1} : {}),
             ...(params.onlyFavorites ? {onlyFavorites: 1} : {}),

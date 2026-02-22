@@ -1,0 +1,5 @@
+ALTER TABLE menu_items
+ADD COLUMN IF NOT EXISTS always_in_stock BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE menu_items
+DROP COLUMN IF EXISTS cook_time_minutes;

@@ -128,10 +128,6 @@ const createMenuItemSchema = {
             minLength: 0,
             maxLength: 2000,
         },
-        cookTimeMinutes: {
-            type: 'integer',
-            minimum: 1,
-        },
         alwaysInStock: {type: 'boolean'},
         price: {
             type: 'number',
@@ -163,10 +159,6 @@ const updateMenuItemSchema = {
             type: 'string',
             minLength: 0,
             maxLength: 2000,
-        },
-        cookTimeMinutes: {
-            type: 'integer',
-            minimum: 1,
         },
         alwaysInStock: {type: 'boolean'},
         price: {
@@ -201,7 +193,7 @@ const getMenuItemsSchema = {
         category: string1,
         onlyAvailable: {type: 'boolean'},
         onlyFavorites: {type: 'boolean'},
-        sortBy: {enum: ['price_asc', 'price_desc', 'cook_time_asc', 'date_desc']},
+        sortBy: {enum: ['price_asc', 'price_desc', 'date_desc']},
         limit,
         offset: {
             type: 'integer',

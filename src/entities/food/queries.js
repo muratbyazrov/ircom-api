@@ -178,7 +178,6 @@ module.exports = {
             ,category
             ,name
             ,description
-            ,cook_time_minutes
             ,always_in_stock
             ,price
             ,is_available
@@ -189,7 +188,6 @@ module.exports = {
             ,:category
             ,:name
             ,:description
-            ,:cookTimeMinutes
             ,COALESCE(:alwaysInStock, FALSE)
             ,:price
             ,COALESCE(:isAvailable, TRUE)
@@ -202,7 +200,6 @@ module.exports = {
             ,category
             ,name
             ,description
-            ,cook_time_minutes AS "cookTimeMinutes"
             ,always_in_stock AS "alwaysInStock"
             ,price
             ,is_available AS "isAvailable"
@@ -215,7 +212,6 @@ module.exports = {
              category = :category
             ,name = :name
             ,description = :description
-            ,cook_time_minutes = :cookTimeMinutes
             ,always_in_stock = COALESCE(:alwaysInStock, FALSE)
             ,price = :price
             ,is_available = COALESCE(:isAvailable, TRUE)
@@ -233,7 +229,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
@@ -263,7 +258,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
@@ -291,7 +285,6 @@ module.exports = {
         ORDER BY
             /*sortPriceAsc: m.price ASC, */
             /*sortPriceDesc: m.price DESC, */
-            /*sortCookTimeAsc: m.cook_time_minutes ASC, */
             /*sortDateDesc: m.created_at DESC, */
             m.menu_item_id DESC
         LIMIT :limit::int
@@ -304,7 +297,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
