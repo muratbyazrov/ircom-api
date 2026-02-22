@@ -183,6 +183,7 @@ module.exports = {
             taxi_offers
         WHERE
             owner_account_id = :accountId
+            AND is_active = TRUE
             /*direction: AND direction = :direction */
         ORDER BY
             CASE WHEN :sortBy = 'price_asc' THEN price END ASC,
