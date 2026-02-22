@@ -1,6 +1,7 @@
 const {Story} = require('story-system');
 const {
-    createOrUpdateRestaurantSchema,
+    createRestaurantSchema,
+    updateRestaurantSchema,
     getMyRestaurantSchema,
     getRestaurantsSchema,
     createMenuItemSchema,
@@ -17,7 +18,8 @@ class FoodController {
     }
 
     createOrUpdateRestaurant(data) {
-        Story.validator.validate(data.params, createOrUpdateRestaurantSchema);
+        const hasRestaurantId = Object.prototype.hasOwnProperty.call(data.params || {}, 'restaurantId');
+        Story.validator.validate(data.params, hasRestaurantId ? updateRestaurantSchema : createRestaurantSchema);
         return this.service.createOrUpdateRestaurant(data);
     }
 

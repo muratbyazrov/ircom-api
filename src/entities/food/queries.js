@@ -9,6 +9,9 @@ module.exports = {
             ,phone
             ,whatsapp
             ,telegram
+            ,has_delivery
+            ,delivery_mode
+            ,delivery_price
         )
         VALUES (
              :accountId
@@ -19,6 +22,13 @@ module.exports = {
             ,:phone
             ,:whatsapp
             ,:telegram
+            ,COALESCE(:hasDelivery, FALSE)
+            ,COALESCE(:deliveryMode, CASE WHEN COALESCE(:hasDelivery, FALSE) THEN 'free' ELSE 'none' END)
+            ,CASE
+                WHEN COALESCE(:deliveryMode, CASE WHEN COALESCE(:hasDelivery, FALSE) THEN 'free' ELSE 'none' END) = 'paid'
+                    THEN GREATEST(COALESCE(:deliveryPrice, 0), 0)
+                ELSE 0
+             END
         )
         RETURNING
              restaurant_id AS "restaurantId"
@@ -30,19 +40,35 @@ module.exports = {
             ,phone
             ,whatsapp
             ,telegram
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "hasDelivery"
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "has_delivery"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryMode"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery_mode"
+            ,COALESCE(delivery_price, 0) AS "deliveryPrice"
+            ,COALESCE(delivery_price, 0) AS "delivery_price"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryOption"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryType"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
     updateRestaurant: `
         UPDATE restaurants
         SET
-             name = :name
-            ,address = :address
-            ,description = :description
-            ,logo_url = :logoUrl
-            ,phone = :phone
-            ,whatsapp = :whatsapp
-            ,telegram = :telegram
+             name = COALESCE(:name, name)
+            ,address = COALESCE(:address, address)
+            ,description = COALESCE(:description, description)
+            ,logo_url = COALESCE(:logoUrl, logo_url)
+            ,phone = COALESCE(:phone, phone)
+            ,whatsapp = COALESCE(:whatsapp, whatsapp)
+            ,telegram = COALESCE(:telegram, telegram)
+            ,has_delivery = COALESCE(:hasDelivery, has_delivery)
+            ,delivery_mode = COALESCE(:deliveryMode, delivery_mode)
+            ,delivery_price = CASE
+                WHEN COALESCE(:deliveryMode, delivery_mode) = 'paid'
+                    THEN GREATEST(COALESCE(:deliveryPrice, delivery_price, 0), 0)
+                ELSE 0
+             END
             ,updated_at = NOW()
         WHERE
             restaurant_id = :restaurantId
@@ -57,6 +83,15 @@ module.exports = {
             ,phone
             ,whatsapp
             ,telegram
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "hasDelivery"
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "has_delivery"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryMode"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery_mode"
+            ,COALESCE(delivery_price, 0) AS "deliveryPrice"
+            ,COALESCE(delivery_price, 0) AS "delivery_price"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryOption"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryType"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -71,6 +106,15 @@ module.exports = {
             ,phone
             ,whatsapp
             ,telegram
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "hasDelivery"
+            ,(COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "has_delivery"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryMode"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery_mode"
+            ,COALESCE(delivery_price, 0) AS "deliveryPrice"
+            ,COALESCE(delivery_price, 0) AS "delivery_price"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryOption"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "deliveryType"
+            ,COALESCE(delivery_mode, CASE WHEN has_delivery THEN 'free' ELSE 'none' END) AS "delivery"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt"
         FROM
@@ -91,6 +135,15 @@ module.exports = {
             ,r.phone
             ,r.whatsapp
             ,r.telegram
+            ,(COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "hasDelivery"
+            ,(COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "has_delivery"
+            ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "deliveryMode"
+            ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "delivery_mode"
+            ,COALESCE(r.delivery_price, 0) AS "deliveryPrice"
+            ,COALESCE(r.delivery_price, 0) AS "delivery_price"
+            ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "deliveryOption"
+            ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "deliveryType"
+            ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "delivery"
             ,r.created_at AS "createdAt"
             ,COUNT(m.menu_item_id)::int AS "menuItemsCount"
         FROM
@@ -128,7 +181,6 @@ module.exports = {
             ,cook_time_minutes
             ,always_in_stock
             ,price
-            ,has_delivery
             ,is_available
             ,photos
         )
@@ -140,7 +192,6 @@ module.exports = {
             ,:cookTimeMinutes
             ,COALESCE(:alwaysInStock, FALSE)
             ,:price
-            ,COALESCE(:hasDelivery, FALSE)
             ,COALESCE(:isAvailable, TRUE)
             ,COALESCE(:photos, '[]'::jsonb)
         FROM
@@ -154,7 +205,6 @@ module.exports = {
             ,cook_time_minutes AS "cookTimeMinutes"
             ,always_in_stock AS "alwaysInStock"
             ,price
-            ,has_delivery AS "hasDelivery"
             ,is_available AS "isAvailable"
             ,photos
             ,created_at AS "createdAt";`,
@@ -168,7 +218,6 @@ module.exports = {
             ,cook_time_minutes = :cookTimeMinutes
             ,always_in_stock = COALESCE(:alwaysInStock, FALSE)
             ,price = :price
-            ,has_delivery = COALESCE(:hasDelivery, FALSE)
             ,is_available = COALESCE(:isAvailable, TRUE)
             ,photos = COALESCE(:photos, '[]'::jsonb)
             ,updated_at = NOW()
@@ -187,7 +236,6 @@ module.exports = {
             ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
-            ,m.has_delivery AS "hasDelivery"
             ,m.is_available AS "isAvailable"
             ,m.photos
             ,m.created_at AS "createdAt"
@@ -218,7 +266,6 @@ module.exports = {
             ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
-            ,m.has_delivery AS "hasDelivery"
             ,m.is_available AS "isAvailable"
             ,m.photos
             ,m.created_at AS "createdAt"
@@ -239,7 +286,6 @@ module.exports = {
             m.is_active = TRUE
             /*restaurantId: AND m.restaurant_id = :restaurantId */
             /*category: AND m.category = :category */
-            /*hasDelivery: AND m.has_delivery = TRUE */
             /*onlyAvailable: AND (m.always_in_stock = TRUE OR m.is_available = TRUE) */
             /*onlyFavorites: AND mf.account_id = :accountId */
         ORDER BY
@@ -261,7 +307,6 @@ module.exports = {
             ,m.cook_time_minutes AS "cookTimeMinutes"
             ,m.always_in_stock AS "alwaysInStock"
             ,m.price
-            ,m.has_delivery AS "hasDelivery"
             ,m.is_available AS "isAvailable"
             ,m.photos
             ,m.created_at AS "createdAt"
