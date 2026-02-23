@@ -8,4 +8,4 @@ GRANT ALL PRIVILEGES ON DATABASE "ircom-api" TO "ircom-api";
 GRANT USAGE, CREATE ON SCHEMA public TO "ircom-api";
 ```
 
-После запуска сервиса миграции создадут таблицы автоматически в схеме `public` (`runMigrations: true`).
+После запуска сервиса миграции создадут таблицы автоматически в схеме `public` (`runMigrations: true`)
