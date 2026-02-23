@@ -128,7 +128,6 @@ const createMenuItemSchema = {
             minLength: 0,
             maxLength: 2000,
         },
-        alwaysInStock: {type: 'boolean'},
         price: {
             type: 'number',
             minimum: 1,
@@ -160,7 +159,6 @@ const updateMenuItemSchema = {
             minLength: 0,
             maxLength: 2000,
         },
-        alwaysInStock: {type: 'boolean'},
         price: {
             type: 'number',
             minimum: 1,

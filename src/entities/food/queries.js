@@ -178,7 +178,6 @@ module.exports = {
             ,category
             ,name
             ,description
-            ,always_in_stock
             ,price
             ,is_available
             ,photos
@@ -188,7 +187,6 @@ module.exports = {
             ,:category
             ,:name
             ,:description
-            ,COALESCE(:alwaysInStock, FALSE)
             ,:price
             ,COALESCE(:isAvailable, TRUE)
             ,COALESCE(:photos, '[]'::jsonb)
@@ -200,7 +198,6 @@ module.exports = {
             ,category
             ,name
             ,description
-            ,always_in_stock AS "alwaysInStock"
             ,price
             ,is_available AS "isAvailable"
             ,photos
@@ -212,7 +209,6 @@ module.exports = {
              category = :category
             ,name = :name
             ,description = :description
-            ,always_in_stock = COALESCE(:alwaysInStock, FALSE)
             ,price = :price
             ,is_available = COALESCE(:isAvailable, TRUE)
             ,photos = COALESCE(:photos, '[]'::jsonb)
@@ -229,7 +225,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
             ,m.photos
@@ -258,7 +253,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
             ,m.photos
@@ -280,7 +274,7 @@ module.exports = {
             m.is_active = TRUE
             /*restaurantId: AND m.restaurant_id = :restaurantId */
             /*category: AND m.category = :category */
-            /*onlyAvailable: AND (m.always_in_stock = TRUE OR m.is_available = TRUE) */
+            /*onlyAvailable: AND m.is_available = TRUE */
             /*onlyFavorites: AND mf.account_id = :accountId */
         ORDER BY
             /*sortPriceAsc: m.price ASC, */
@@ -297,7 +291,6 @@ module.exports = {
             ,m.category
             ,m.name
             ,m.description
-            ,m.always_in_stock AS "alwaysInStock"
             ,m.price
             ,m.is_available AS "isAvailable"
             ,m.photos
