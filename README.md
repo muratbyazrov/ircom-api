@@ -22,6 +22,37 @@ npm run dev
 http://127.0.0.1:3002/ircom-api/v1
 ```
 
+## Docker (сервер)
+
+Быстрый запуск API (Postgres на отдельном сервере):
+
+```bash
+docker compose up -d --build
+```
+
+Важно: зависимость `story-system` тянется из `git@github.com`, поэтому на сервере должен быть доступен SSH-ключ к GitHub (запущен `ssh-agent` с добавленным ключом).
+
+Остановка:
+
+```bash
+docker compose down
+```
+
+Создай `.env` рядом с `docker-compose.yml` и укажи доступ к внешнему Postgres:
+
+```text
+IRCOM_API_PORT=3002
+IRCOM_DB_HOST=10.0.0.15
+IRCOM_DB_PORT=5432
+IRCOM_DB_DATABASE=ircom-api
+IRCOM_DB_USER=ircom-api
+IRCOM_DB_PASSWORD=replace-me
+IRCOM_S3_BUCKET=your-bucket
+IRCOM_S3_REGION=eu-central-1
+IRCOM_S3_ACCESS_KEY_ID=...
+IRCOM_S3_SECRET_ACCESS_KEY=...
+```
+
 ## Основные методы
 
 ### account

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "prod": "NODE_ENV=production nodemon app.js",
-    "docker": "NODE_ENV=docker nodemon app.js",
+    "docker": "NODE_ENV=production nodemon app.js",
     "dev": "NODE_ENV=development nodemon app.js",
     "env": "./environment docker-compose up",
     "stop env": "./environment docker-compose rm -vsf"

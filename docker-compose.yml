@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      ssh:
+        - default
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      IRCOM_DB_HOST: ${IRCOM_DB_HOST:-127.0.0.1}
+      IRCOM_DB_PORT: ${IRCOM_DB_PORT:-5432}
+      IRCOM_DB_DATABASE: ${IRCOM_DB_DATABASE:-ircom-api}
+      IRCOM_DB_SCHEMA: ${IRCOM_DB_SCHEMA:-public}
+      IRCOM_DB_USER: ${IRCOM_DB_USER:-ircom-api}
+      IRCOM_DB_PASSWORD: ${IRCOM_DB_PASSWORD:-ircom-api-password-1}
+      IRCOM_API_HOST: 0.0.0.0
+      IRCOM_API_PORT: ${IRCOM_API_PORT:-3002}
+      IRCOM_API_PATH: ${IRCOM_API_PATH:-/ircom-api/v1}
+      IRCOM_S3_BUCKET: ${IRCOM_S3_BUCKET:-}
+      IRCOM_S3_REGION: ${IRCOM_S3_REGION:-eu-central-1}
+      IRCOM_S3_ACCESS_KEY_ID: ${IRCOM_S3_ACCESS_KEY_ID:-}
+      IRCOM_S3_SECRET_ACCESS_KEY: ${IRCOM_S3_SECRET_ACCESS_KEY:-}
+      IRCOM_S3_SESSION_TOKEN: ${IRCOM_S3_SESSION_TOKEN:-}
+      IRCOM_S3_KEY_PREFIX: ${IRCOM_S3_KEY_PREFIX:-ircom/photos}
+      IRCOM_S3_UPLOAD_ENDPOINT: ${IRCOM_S3_UPLOAD_ENDPOINT:-}
+      IRCOM_S3_PUBLIC_BASE_URL: ${IRCOM_S3_PUBLIC_BASE_URL:-}
+      IRCOM_S3_OBJECT_ACL: ${IRCOM_S3_OBJECT_ACL:-}
+      IRCOM_S3_MAX_UPLOAD_BYTES: ${IRCOM_S3_MAX_UPLOAD_BYTES:-10485760}
+      IRCOM_S3_UPLOAD_EXPIRES_SECONDS: ${IRCOM_S3_UPLOAD_EXPIRES_SECONDS:-300}
+    ports:
+      - "${IRCOM_API_PORT:-3002}:3002"

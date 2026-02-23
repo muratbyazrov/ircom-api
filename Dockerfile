@@ -1,20 +1,20 @@
-FROM --platform=linux/amd64 python:3.7-alpine
+# syntax=docker/dockerfile:1.4
+FROM node:20-alpine
 
-# Используйте официальный образ Node.js
-FROM node:18
-
-# Установите рабочую директорию в контейнере
 WORKDIR /app
 
-# Скопируйте package.json и package-lock.json в контейнер
+# story-system comes from git, so git/ssh client are required during install
+RUN apk add --no-cache git openssh-client
+
 COPY package*.json ./
+RUN mkdir -p -m 0700 /root/.ssh \
+    && ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN --mount=type=ssh npm ci --omit=dev && npm cache clean --force
 
-# Установите зависимости
-RUN npm install -g db-migrate
-RUN npm install
-
-# Скопируйте остальные файлы приложения в контейнер
 COPY . .
 
-# Запустите приложение при запуске контейнера
-CMD [ "node", "app.js" ]
+ENV NODE_ENV=production
+EXPOSE 3002
+
+USER node
+CMD ["node", "app.js"]

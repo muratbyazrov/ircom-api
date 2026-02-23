@@ -1,17 +1,17 @@
 module.exports = {
     db: {
-        host: '127.0.0.1',
-        database: 'ircom-api',
-        schema: 'public',
-        user: 'ircom-api-user',
-        password: 'replace-me',
-        port: 5432,
-        runMigrations: true,
+        host: process.env.IRCOM_DB_HOST || '127.0.0.1',
+        database: process.env.IRCOM_DB_DATABASE || 'ircom-api',
+        schema: process.env.IRCOM_DB_SCHEMA || 'public',
+        user: process.env.IRCOM_DB_USER || 'ircom-api-user',
+        password: process.env.IRCOM_DB_PASSWORD || 'replace-me',
+        port: Number(process.env.IRCOM_DB_PORT) || 5432,
+        runMigrations: process.env.IRCOM_DB_RUN_MIGRATIONS !== 'false',
     },
     http: {
-        host: '0.0.0.0',
-        port: 3002,
-        path: '/ircom-api/v1',
+        host: process.env.IRCOM_API_HOST || '0.0.0.0',
+        port: Number(process.env.IRCOM_API_PORT) || 3002,
+        path: process.env.IRCOM_API_PATH || '/ircom-api/v1',
     },
     media: {
         bucket: process.env.IRCOM_S3_BUCKET || '',
