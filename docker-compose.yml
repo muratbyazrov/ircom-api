@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      ssh:
-        - default
     restart: unless-stopped
     environment:
       NODE_ENV: production

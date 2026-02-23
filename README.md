@@ -30,7 +30,7 @@ http://127.0.0.1:3002/ircom-api/v1
 docker compose up -d --build
 ```
 
-Важно: зависимость `story-system` тянется из `git@github.com`, поэтому на сервере должен быть доступен SSH-ключ к GitHub (запущен `ssh-agent` с добавленным ключом).
+Важно: зависимость `story-system` тянется с GitHub по `https`. Если репозиторий приватный, добавь доступ (token/credentials) в окружение деплоя.
 
 Остановка:
 

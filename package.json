@@ -10,7 +10,7 @@
     "stop env": "./environment docker-compose rm -vsf"
   },
   "dependencies": {
-    "story-system": "git@github.com:muratbyazrov/story-system.git"
+    "story-system": "git+https://github.com/muratbyazrov/story-system.git"
   },
   "devDependencies": {
     "eslint": "^8.13.0",
