@@ -1,6 +1,6 @@
 # ircom-api
 
-Backend для приложения ircom на базе `story-system`.
+Backend для приложения ircom на базе `story-system`
 
 ## Домены
 
