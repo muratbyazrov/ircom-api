@@ -19,11 +19,23 @@
   },
   "production": {
     "driver": "pg",
-    "host": "127.0.0.1",
-    "port": 5432,
-    "database": "ircom-api",
-    "schema": "public",
-    "user": "ircom-api-user",
-    "password": "replace-me"
+    "host": {
+      "ENV": "IRCOM_DB_HOST"
+    },
+    "port": {
+      "ENV": "IRCOM_DB_PORT"
+    },
+    "database": {
+      "ENV": "IRCOM_DB_DATABASE"
+    },
+    "schema": {
+      "ENV": "IRCOM_DB_SCHEMA"
+    },
+    "user": {
+      "ENV": "IRCOM_DB_USER"
+    },
+    "password": {
+      "ENV": "IRCOM_DB_PASSWORD"
+    }
   }
 }
