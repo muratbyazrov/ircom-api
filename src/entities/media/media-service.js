@@ -1,5 +1,7 @@
 const {Story} = require('story-system');
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 const DEFAULT_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -50,6 +52,7 @@ const getSignatureKey = ({secretAccessKey, dateStamp, region, service}) => {
     const kService = crypto.createHmac('sha256', kRegion).update(service).digest();
     return crypto.createHmac('sha256', kService).update('aws4_request').digest();
 };
+const hashSha256Hex = value => crypto.createHash('sha256').update(value).digest('hex');
 const buildS3PostUrl = ({bucket, region, endpoint}) => {
     const normalizedEndpoint = String(endpoint || '').trim();
     if (normalizedEndpoint) {
@@ -71,6 +74,34 @@ const buildDefaultAwsPublicUrl = ({bucket, region, objectKey}) => {
     }
     return `https://${normalizedBucket}.s3.${normalizedRegion}.amazonaws.com/${encodeRfc3986(normalizedKey).replace(/%2F/g, '/')}`;
 };
+const buildDeleteObjectUrl = ({bucket, region, endpoint, objectKey}) => {
+    const encodedKey = encodeRfc3986(objectKey).replace(/%2F/g, '/');
+    const normalizedEndpoint = String(endpoint || '').trim().replace(/\/+$/, '');
+    if (normalizedEndpoint) {
+        return new URL(`${normalizedEndpoint}/${encodedKey}`);
+    }
+    return new URL(`https://${bucket}.s3.${region}.amazonaws.com/${encodedKey}`);
+};
+const callDeleteObject = ({url, headers}) => new Promise((resolve, reject) => {
+    const client = url.protocol === 'http:' ? http : https;
+    const req = client.request({
+        method: 'DELETE',
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port || undefined,
+        path: `${url.pathname}${url.search}`,
+        headers,
+    }, response => {
+        response.on('data', () => {});
+        response.on('end', () => {
+            const statusCode = Number(response.statusCode) || 0;
+            resolve(statusCode);
+        });
+    });
+
+    req.on('error', error => reject(error));
+    req.end();
+});
 
 class MediaService {
     constructor(config = {}) {
@@ -221,6 +252,85 @@ class MediaService {
                 objectKey,
             }),
         };
+    }
+
+    async deletePhoto({params}) {
+        const config = this.getS3Config();
+        const objectKey = String(params.objectKey || '').trim().replace(/^\/+/, '');
+        if (!objectKey) {
+            throw new Story.errors.BadRequestError('objectKey обязателен');
+        }
+
+        const url = buildDeleteObjectUrl({
+            bucket: config.bucket,
+            region: config.region,
+            endpoint: config.endpoint,
+            objectKey,
+        });
+
+        const now = new Date();
+        const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+        const dateStamp = amzDate.slice(0, 8);
+        const scope = `${dateStamp}/${config.region}/s3/aws4_request`;
+        const payloadHash = hashSha256Hex('');
+
+        const canonicalHeadersMap = {
+            host: url.host,
+            'x-amz-content-sha256': payloadHash,
+            'x-amz-date': amzDate,
+            ...(config.sessionToken ? {'x-amz-security-token': config.sessionToken} : {}),
+        };
+
+        const signedHeaders = Object.keys(canonicalHeadersMap)
+            .sort()
+            .join(';');
+        const canonicalHeaders = Object.keys(canonicalHeadersMap)
+            .sort()
+            .map(key => `${key}:${String(canonicalHeadersMap[key]).trim()}\n`)
+            .join('');
+        const canonicalRequest = [
+            'DELETE',
+            url.pathname || '/',
+            url.search ? url.search.slice(1) : '',
+            canonicalHeaders,
+            signedHeaders,
+            payloadHash,
+        ].join('\n');
+
+        const stringToSign = [
+            'AWS4-HMAC-SHA256',
+            amzDate,
+            scope,
+            hashSha256Hex(canonicalRequest),
+        ].join('\n');
+
+        const signingKey = getSignatureKey({
+            secretAccessKey: config.secretAccessKey,
+            dateStamp,
+            region: config.region,
+            service: 's3',
+        });
+        const signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
+
+        const statusCode = await callDeleteObject({
+            url,
+            headers: {
+                Host: url.host,
+                'x-amz-content-sha256': payloadHash,
+                'x-amz-date': amzDate,
+                ...(config.sessionToken ? {'x-amz-security-token': config.sessionToken} : {}),
+                Authorization: `AWS4-HMAC-SHA256 Credential=${config.accessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+            },
+        });
+
+        if ((statusCode >= 200 && statusCode < 300) || statusCode === 404) {
+            return {
+                objectKey,
+                deleted: true,
+            };
+        }
+
+        throw new Story.errors.BadRequestError(`Не удалось удалить фото из S3 (HTTP ${statusCode})`);
     }
 }
 

@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     initPhotoUploadSchema,
     buildPhotoUrlSchema,
+    deletePhotoSchema,
 } = require('./schemas.js');
 
 class MediaController {
@@ -17,6 +18,11 @@ class MediaController {
     buildPhotoUrl(data) {
         Story.validator.validate(data.params, buildPhotoUrlSchema);
         return this.service.buildPhotoUrl(data);
+    }
+
+    deletePhoto(data) {
+        Story.validator.validate(data.params, deletePhotoSchema);
+        return this.service.deletePhoto(data);
     }
 }
 

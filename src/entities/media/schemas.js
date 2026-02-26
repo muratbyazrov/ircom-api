@@ -36,7 +36,18 @@ const buildPhotoUrlSchema = {
     },
 };
 
+const deletePhotoSchema = {
+    id: 'deletePhotoSchema',
+    additionalProperties: false,
+    required: ['accountId', 'objectKey'],
+    properties: {
+        accountId: number1,
+        objectKey: string1,
+    },
+};
+
 module.exports = {
     initPhotoUploadSchema,
     buildPhotoUrlSchema,
+    deletePhotoSchema,
 };
