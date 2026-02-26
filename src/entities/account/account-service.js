@@ -93,7 +93,7 @@ class AccountService {
     async signIn({params}) {
         const phone = normalizePhone(params.phone);
         if (!phone) {
-            throw new Story.errors.Forbidden('Неправильный логин или пароль');
+            throw new Story.errors.Forbidden('Неверный номер телефона или пароль');
         }
         const authAccount = await Story.dbAdapter.execQuery({
             queryName: getAuthAccountByPhone,
@@ -106,14 +106,14 @@ class AccountService {
         });
 
         if (!authAccount) {
-            throw new Story.errors.Forbidden('Неправильный логин или пароль');
+            throw new Story.errors.Forbidden('Неверный номер телефона или пароль');
         }
 
         const actualHash = await hashPassword(params.password, authAccount.passwordSalt);
         const isPasswordValid = safeCompareHexHashes(actualHash, authAccount.passwordHash);
 
         if (!isPasswordValid) {
-            throw new Story.errors.Forbidden('Неправильный логин или пароль');
+            throw new Story.errors.Forbidden('Неверный номер телефона или пароль');
         }
 
         const sessionToken = createSessionToken();
