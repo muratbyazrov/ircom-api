@@ -42,7 +42,7 @@ class AccountService {
     async register({params}) {
         const phone = normalizePhone(params.phone);
         if (!phone) {
-            throw new Story.errors.BadRequestError('Phone is required');
+            throw new Story.errors.BadRequestError('Телефон обязателен');
         }
 
         const passwordSalt = createSalt();
@@ -66,7 +66,7 @@ class AccountService {
             });
         } catch (error) {
             if (error && error.code === '23505') {
-                throw new Story.errors.BadRequestError('Account with this phone already exists');
+                throw new Story.errors.BadRequestError('Аккаунт с таким номером телефона уже существует');
             }
             throw error;
         }
@@ -164,9 +164,9 @@ class AccountService {
     createOrUpdateAccount({params}) {
         const queryParams = {
             ...params,
-            phone: params.phone === null || typeof params.phone === 'undefined'
-                ? null
-                : normalizePhone(params.phone),
+            phone: params.phone === null || typeof params.phone === 'undefined' ?
+                null :
+                normalizePhone(params.phone),
         };
 
         return Story.dbAdapter.execQuery({
@@ -177,7 +177,7 @@ class AccountService {
             },
         }).catch(error => {
             if (error && error.code === '23505') {
-                throw new Story.errors.BadRequestError('Account with this phone already exists');
+                throw new Story.errors.BadRequestError('Аккаунт с таким номером телефона уже существует');
             }
             throw error;
         });

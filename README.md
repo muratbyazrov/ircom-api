@@ -53,6 +53,8 @@ IRCOM_S3_ACCESS_KEY_ID=...
 IRCOM_S3_SECRET_ACCESS_KEY=...
 ```
 
+Для `NODE_ENV=production` эти `IRCOM_DB_*` используются не только приложением, но и `db-migrate` во время старта миграций.
+
 ## Основные методы
 
 ### account

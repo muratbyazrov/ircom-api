@@ -98,7 +98,7 @@ class MediaService {
         );
 
         if (!bucket || !accessKeyId || !secretAccessKey) {
-            throw new Story.errors.BadRequestError('S3 is not configured');
+            throw new Story.errors.BadRequestError('S3 не настроен');
         }
 
         return {
@@ -143,10 +143,10 @@ class MediaService {
         const mimeType = String(params.mimeType || '').trim().toLowerCase();
 
         if (!ALLOWED_MIME_TYPES.has(mimeType)) {
-            throw new Story.errors.BadRequestError('Unsupported image type');
+            throw new Story.errors.BadRequestError('Неподдерживаемый тип изображения');
         }
         if (params.byteSize > config.maxUploadBytes) {
-            throw new Story.errors.BadRequestError(`Image is too large. Max ${config.maxUploadBytes} bytes`);
+            throw new Story.errors.BadRequestError(`Изображение слишком большое. Максимум ${config.maxUploadBytes} байт`);
         }
 
         const now = new Date();

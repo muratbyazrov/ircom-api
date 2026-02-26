@@ -143,7 +143,7 @@ const normalizeCarPhotos = params => {
 const normalizeTaxiParams = params => {
     const departureAt = normalizeDepartureAt(params.departureAt);
     if (normalizeOptionalText(params.departureAt) && !departureAt) {
-        throw new Story.errors.BadRequestError('Invalid departureAt format. Use ISO 8601 (e.g. 2026-02-22T16:00:00+03:00)');
+        throw new Story.errors.BadRequestError('Неверный формат departureAt. Используйте ISO 8601 (например, 2026-02-22T16:00:00+03:00)');
     }
 
     return {
