@@ -74,7 +74,7 @@ class ListingService {
         const queryParams = {
             ...restParams,
             accountId,
-            ...(categoryId !== null ? {categoryId} : {}),
+            ...(categoryId === null ? {} : {categoryId}),
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',

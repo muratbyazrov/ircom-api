@@ -25,7 +25,10 @@ module.exports = {
             ,COALESCE(:hasDelivery, FALSE)
             ,COALESCE(:deliveryMode, CASE WHEN COALESCE(:hasDelivery, FALSE) THEN 'free' ELSE 'none' END)
             ,CASE
-                WHEN COALESCE(:deliveryMode, CASE WHEN COALESCE(:hasDelivery, FALSE) THEN 'free' ELSE 'none' END) = 'paid'
+                WHEN COALESCE(
+                    :deliveryMode,
+                    CASE WHEN COALESCE(:hasDelivery, FALSE) THEN 'free' ELSE 'none' END
+                ) = 'paid'
                     THEN GREATEST(COALESCE(:deliveryPrice, 0), 0)
                 ELSE 0
              END
@@ -135,8 +138,12 @@ module.exports = {
             ,r.phone
             ,r.whatsapp
             ,r.telegram
-            ,(COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "hasDelivery"
-            ,(COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none') AS "has_delivery"
+            ,(
+                COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none'
+            ) AS "hasDelivery"
+            ,(
+                COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) <> 'none'
+            ) AS "has_delivery"
             ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "deliveryMode"
             ,COALESCE(r.delivery_mode, CASE WHEN r.has_delivery THEN 'free' ELSE 'none' END) AS "delivery_mode"
             ,COALESCE(r.delivery_price, 0) AS "deliveryPrice"
