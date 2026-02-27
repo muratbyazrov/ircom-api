@@ -114,9 +114,14 @@ const createMenuItemSchema = {
     id: 'createMenuItemSchema',
     additionalProperties: false,
     required: ['accountId', 'name', 'price'],
+    anyOf: [
+        {required: ['categoryId']},
+        {required: ['category']},
+    ],
     properties: {
         accountId: number1,
         restaurantId: number1,
+        categoryId: number1,
         category: string1,
         name: {
             type: 'string',
@@ -145,9 +150,14 @@ const updateMenuItemSchema = {
     id: 'updateMenuItemSchema',
     additionalProperties: false,
     required: ['accountId', 'menuItemId', 'name', 'price'],
+    anyOf: [
+        {required: ['categoryId']},
+        {required: ['category']},
+    ],
     properties: {
         accountId: number1,
         menuItemId: number1,
+        categoryId: number1,
         category: string1,
         name: {
             type: 'string',
@@ -188,6 +198,7 @@ const getMenuItemsSchema = {
     properties: {
         accountId: number1,
         restaurantId: number1,
+        categoryId: number1,
         category: string1,
         onlyAvailable: {type: 'boolean'},
         onlyFavorites: {type: 'boolean'},

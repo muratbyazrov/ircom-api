@@ -9,10 +9,15 @@ const listingPhoto = {
 const createListingSchema = {
     id: 'createListingSchema',
     additionalProperties: false,
-    required: ['accountId', 'kind', 'category', 'title', 'description', 'price'],
+    required: ['accountId', 'kind', 'title', 'description', 'price'],
+    anyOf: [
+        {required: ['categoryId']},
+        {required: ['category']},
+    ],
     properties: {
         accountId: number1,
         kind: {enum: [1, 2]},
+        categoryId: number1,
         category: string1,
         title: {
             type: 'string',
@@ -40,11 +45,16 @@ const createListingSchema = {
 const updateListingSchema = {
     id: 'updateListingSchema',
     additionalProperties: false,
-    required: ['accountId', 'listingId', 'kind', 'category', 'title', 'description', 'price'],
+    required: ['accountId', 'listingId', 'kind', 'title', 'description', 'price'],
+    anyOf: [
+        {required: ['categoryId']},
+        {required: ['category']},
+    ],
     properties: {
         accountId: number1,
         listingId: number1,
         kind: {enum: [1, 2]},
+        categoryId: number1,
         category: string1,
         title: {
             type: 'string',
@@ -75,6 +85,7 @@ const getListingsSchema = {
     required: ['kind'],
     properties: {
         kind: {enum: [1, 2]},
+        categoryId: number1,
         category: string1,
         accountId: number1,
         onlyFavorites: {type: 'boolean'},

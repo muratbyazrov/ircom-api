@@ -324,9 +324,11 @@ class FoodService {
     }
 
     createMenuItem({params}) {
+        const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
             ...params,
             restaurantId: Number.isInteger(params.restaurantId) ? params.restaurantId : null,
+            categoryId,
             photos: normalizePhotos(params),
         };
 
@@ -340,8 +342,10 @@ class FoodService {
     }
 
     updateMenuItem({params}) {
+        const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
             ...params,
+            categoryId,
             photos: normalizePhotos(params),
         };
 
@@ -368,10 +372,13 @@ class FoodService {
         const sortBy = params.sortBy || 'date_desc';
         const restParams = {...params};
         delete restParams.sortBy;
+        delete restParams.categoryId;
         const accountId = Number.isInteger(params.accountId) ? params.accountId : null;
+        const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
             ...restParams,
             accountId,
+            ...(categoryId !== null ? {categoryId} : {}),
             limit: params.limit || 20,
             offset: params.offset || 0,
             ...(sortBy === 'price_asc' ? {sortPriceAsc: 1} : {}),

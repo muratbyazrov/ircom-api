@@ -16,10 +16,25 @@ const normalizePhotos = params => {
     return JSON.stringify(params.photos);
 };
 
+const normalizeOptionalInt = value => {
+    if (Number.isInteger(value)) {
+        return value;
+    }
+
+    if (typeof value === 'string' && value.trim().length > 0) {
+        const parsed = Number.parseInt(value, 10);
+        return Number.isInteger(parsed) ? parsed : null;
+    }
+
+    return null;
+};
+
 class ListingService {
     createListing({params}) {
+        const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
             ...params,
+            categoryId,
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
         };
@@ -34,8 +49,10 @@ class ListingService {
     }
 
     updateListing({params}) {
+        const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
             ...params,
+            categoryId,
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
         };
@@ -51,9 +68,13 @@ class ListingService {
 
     getListings({params = {}}) {
         const accountId = Number.isInteger(params.accountId) ? params.accountId : null;
+        const categoryId = normalizeOptionalInt(params.categoryId);
+        const restParams = {...params};
+        delete restParams.categoryId;
         const queryParams = {
-            ...params,
+            ...restParams,
             accountId,
+            ...(categoryId !== null ? {categoryId} : {}),
             limit: params.limit || 20,
             offset: params.offset || 0,
             sortBy: params.sortBy || 'date_desc',

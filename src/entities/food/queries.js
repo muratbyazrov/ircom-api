@@ -172,9 +172,28 @@ module.exports = {
             ORDER BY
                 r.restaurant_id DESC
             LIMIT 1
+        ),
+        resolved_category AS (
+            SELECT
+                 kc.category_id AS category_id
+                ,kc.name AS category_name
+            FROM
+                kitchen_categories AS kc
+            WHERE
+                kc.is_active = TRUE
+                AND (
+                    (:categoryId::bigint IS NOT NULL AND kc.category_id = :categoryId::bigint)
+                    OR (
+                        :categoryId::bigint IS NULL
+                        AND :category::text IS NOT NULL
+                        AND LOWER(BTRIM(kc.name)) = LOWER(BTRIM(:category::text))
+                    )
+                )
+            LIMIT 1
         )
         INSERT INTO menu_items (
              restaurant_id
+            ,kitchen_category_id
             ,category
             ,name
             ,description
@@ -184,7 +203,8 @@ module.exports = {
         )
         SELECT
              tr.restaurant_id
-            ,:category
+            ,rc.category_id
+            ,rc.category_name
             ,:name
             ,:description
             ,:price
@@ -192,9 +212,11 @@ module.exports = {
             ,COALESCE(:photos, '[]'::jsonb)
         FROM
             target_restaurant AS tr
+            INNER JOIN resolved_category AS rc ON TRUE
         RETURNING
              menu_item_id AS "menuItemId"
             ,restaurant_id AS "restaurantId"
+            ,kitchen_category_id AS "categoryId"
             ,category
             ,name
             ,description
@@ -204,9 +226,28 @@ module.exports = {
             ,created_at AS "createdAt";`,
 
     updateMenuItem: `
+        WITH resolved_category AS (
+            SELECT
+                 kc.category_id AS category_id
+                ,kc.name AS category_name
+            FROM
+                kitchen_categories AS kc
+            WHERE
+                kc.is_active = TRUE
+                AND (
+                    (:categoryId::bigint IS NOT NULL AND kc.category_id = :categoryId::bigint)
+                    OR (
+                        :categoryId::bigint IS NULL
+                        AND :category::text IS NOT NULL
+                        AND LOWER(BTRIM(kc.name)) = LOWER(BTRIM(:category::text))
+                    )
+                )
+            LIMIT 1
+        )
         UPDATE menu_items AS m
         SET
-             category = :category
+             category = rc.category_name
+            ,kitchen_category_id = rc.category_id
             ,name = :name
             ,description = :description
             ,price = :price
@@ -215,6 +256,7 @@ module.exports = {
             ,updated_at = NOW()
         FROM
             restaurants AS r
+            INNER JOIN resolved_category AS rc ON TRUE
         WHERE
             m.menu_item_id = :menuItemId
             AND r.restaurant_id = m.restaurant_id
@@ -222,6 +264,7 @@ module.exports = {
         RETURNING
              m.menu_item_id AS "menuItemId"
             ,m.restaurant_id AS "restaurantId"
+            ,m.kitchen_category_id AS "categoryId"
             ,m.category
             ,m.name
             ,m.description
@@ -250,7 +293,8 @@ module.exports = {
         SELECT
              m.menu_item_id AS "menuItemId"
             ,m.restaurant_id AS "restaurantId"
-            ,m.category
+            ,m.kitchen_category_id AS "categoryId"
+            ,COALESCE(kc.name, m.category) AS category
             ,m.name
             ,m.description
             ,m.price
@@ -267,13 +311,15 @@ module.exports = {
         FROM
             menu_items AS m
             INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
+            LEFT JOIN kitchen_categories AS kc ON kc.category_id = m.kitchen_category_id
             LEFT JOIN menu_item_favorites AS mf
                 ON mf.menu_item_id = m.menu_item_id
                 AND mf.account_id = :accountId
         WHERE
             m.is_active = TRUE
             /*restaurantId: AND m.restaurant_id = :restaurantId */
-            /*category: AND m.category = :category */
+            /*categoryId: AND m.kitchen_category_id = :categoryId */
+            /*category: AND LOWER(COALESCE(kc.name, m.category)) = LOWER(:category) */
             /*onlyAvailable: AND m.is_available = TRUE */
             /*onlyFavorites: AND mf.account_id = :accountId */
         ORDER BY
@@ -288,7 +334,8 @@ module.exports = {
         SELECT
              m.menu_item_id AS "menuItemId"
             ,m.restaurant_id AS "restaurantId"
-            ,m.category
+            ,m.kitchen_category_id AS "categoryId"
+            ,COALESCE(kc.name, m.category) AS category
             ,m.name
             ,m.description
             ,m.price
@@ -305,6 +352,7 @@ module.exports = {
         FROM
             menu_items AS m
             INNER JOIN restaurants AS r ON r.restaurant_id = m.restaurant_id
+            LEFT JOIN kitchen_categories AS kc ON kc.category_id = m.kitchen_category_id
             LEFT JOIN menu_item_favorites AS mf
                 ON mf.menu_item_id = m.menu_item_id
                 AND mf.account_id = :accountId

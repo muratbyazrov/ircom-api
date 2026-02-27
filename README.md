@@ -8,6 +8,7 @@ Backend для приложения ircom на базе `story-system`
 - `listing`: объявления и услуги (создание, список, карточка, избранное).
 - `taxi`: предложения такси (город/межгород, список, карточка, избранное).
 - `food`: заведение и блюда (CRUD базового уровня + избранное блюд).
+- `dictionary`: справочники категорий объявлений/услуг/кухонь.
 
 ## ENV и запуск
 
@@ -95,6 +96,12 @@ IRCOM_S3_SECRET_ACCESS_KEY=...
 ### media
 - `initPhotoUpload` — выдаёт `presigned POST` для прямой загрузки изображения в S3.
 - `buildPhotoUrl` — строит URL просмотра по `objectKey` (если настроен `IRCOM_S3_PUBLIC_BASE_URL`).
+
+### dictionary
+- `getListingCategories` — возвращает активные категории объявлений.
+- `getServiceCategories` — возвращает активные категории услуг.
+- `getKitchenCategories` — возвращает активные категории кухонь.
+- `getDictionaries` — возвращает все три справочника одним ответом.
 
 ## S3 ENV
 
