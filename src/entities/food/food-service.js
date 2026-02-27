@@ -79,14 +79,20 @@ const normalizeDeliveryValue = value => {
     }
 
     if (typeof value === 'number') {
-        if (value === 1) return true;
-        if (value === 0) return false;
+        if (value === 1) {
+            return true;
+        }
+        if (value === 0) {
+            return false;
+        }
         return null;
     }
 
     if (typeof value === 'string') {
         const normalized = value.trim().toLowerCase();
-        if (!normalized) return null;
+        if (!normalized) {
+            return null;
+        }
 
         const truthy = new Set([
             '1',
@@ -114,8 +120,12 @@ const normalizeDeliveryValue = value => {
             'нет доставки',
         ]);
 
-        if (truthy.has(normalized)) return true;
-        if (falsy.has(normalized)) return false;
+        if (truthy.has(normalized)) {
+            return true;
+        }
+        if (falsy.has(normalized)) {
+            return false;
+        }
 
         if (
             normalized.includes('free') ||
@@ -162,14 +172,20 @@ const normalizeDeliveryMode = value => {
     }
 
     if (typeof value === 'number') {
-        if (value === 1) return 'free';
-        if (value === 0) return 'none';
+        if (value === 1) {
+            return 'free';
+        }
+        if (value === 0) {
+            return 'none';
+        }
         return null;
     }
 
     if (typeof value === 'string') {
         const normalized = value.trim().toLowerCase();
-        if (!normalized) return null;
+        if (!normalized) {
+            return null;
+        }
 
         if (['none', 'no', 'нет', 'нет доставки', 'without_delivery', 'no_delivery'].includes(normalized)) {
             return 'none';
@@ -256,18 +272,18 @@ class FoodService {
         const rawHasDelivery = resolveRawHasDelivery(params);
         const deliveryMode = normalizeDeliveryMode(rawDeliveryMode);
         const hasDelivery = normalizeDeliveryValue(rawHasDelivery);
-        const resolvedDeliveryMode = deliveryMode !== null
-            ? deliveryMode
-            : (hasDelivery === null ? null : (hasDelivery ? 'free' : 'none'));
-        const resolvedHasDelivery = resolvedDeliveryMode !== null
-            ? resolvedDeliveryMode !== 'none'
-            : hasDelivery;
+        const resolvedDeliveryMode = deliveryMode !== null ?
+            deliveryMode :
+            (hasDelivery === null ? null : (hasDelivery ? 'free' : 'none'));
+        const resolvedHasDelivery = resolvedDeliveryMode !== null ?
+            resolvedDeliveryMode !== 'none' :
+            hasDelivery;
         const inputDeliveryPrice = normalizeOptionalNumber(
-            pickFirstDefined(params, ['deliveryPrice', 'delivery_price'])
+            pickFirstDefined(params, ['deliveryPrice', 'delivery_price']),
         );
-        const deliveryPrice = resolvedDeliveryMode === 'paid'
-            ? (inputDeliveryPrice === null ? 0 : Math.max(0, inputDeliveryPrice))
-            : (resolvedDeliveryMode === null ? null : 0);
+        const deliveryPrice = resolvedDeliveryMode === 'paid' ?
+            (inputDeliveryPrice === null ? 0 : Math.max(0, inputDeliveryPrice)) :
+            (resolvedDeliveryMode === null ? null : 0);
 
         const queryParams = {
             ...params,

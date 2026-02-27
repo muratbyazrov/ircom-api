@@ -16,15 +16,23 @@ const {DictionaryService} = require('./src/entities/dictionary/dictionary-servic
 
 const loadLocalEnv = () => {
     const envPath = path.join(process.cwd(), '.env');
-    if (!fs.existsSync(envPath)) return;
+    if (!fs.existsSync(envPath)) {
+        return;
+    }
     const raw = fs.readFileSync(envPath, 'utf8');
-    raw.split(/\r?\n/).forEach((line) => {
+    raw.split(/\r?\n/).forEach(line => {
         const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) return;
+        if (!trimmed || trimmed.startsWith('#')) {
+            return;
+        }
         const separatorIndex = trimmed.indexOf('=');
-        if (separatorIndex < 1) return;
+        if (separatorIndex < 1) {
+            return;
+        }
         const key = trimmed.slice(0, separatorIndex).trim();
-        if (!key || process.env[key] !== undefined) return;
+        if (!key || process.env[key] !== undefined) {
+            return;
+        }
         const value = trimmed.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, '');
         process.env[key] = value;
     });

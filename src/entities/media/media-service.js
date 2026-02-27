@@ -16,7 +16,10 @@ const ALLOWED_MIME_TYPES = new Set([
     'image/gif',
 ]);
 
-const encodeRfc3986 = value => encodeURIComponent(value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+const encodeRfc3986 = value => encodeURIComponent(value).replace(
+    /[!'()*]/g,
+    char => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
+);
 const normalizePrefix = (value, fallback) => String(value || fallback || 'uploads')
     .trim()
     .replace(/^\/+|\/+$/g, '')
@@ -24,7 +27,9 @@ const normalizePrefix = (value, fallback) => String(value || fallback || 'upload
 const normalizeRegion = region => String(region || '').trim() || 'eu-central-1';
 const toInt = (value, fallback) => {
     const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return fallback;
+    if (!Number.isFinite(parsed)) {
+        return fallback;
+    }
     return Math.trunc(parsed);
 };
 const mapMimeToExt = mimeType => {
@@ -62,7 +67,9 @@ const buildS3PostUrl = ({bucket, region, endpoint}) => {
 };
 const buildPublicUrl = ({publicBaseUrl, objectKey}) => {
     const base = String(publicBaseUrl || '').trim().replace(/\/+$/, '');
-    if (!base) return null;
+    if (!base) {
+        return null;
+    }
     return `${base}/${encodeRfc3986(objectKey).replace(/%2F/g, '/')}`;
 };
 const buildDefaultAwsPublicUrl = ({bucket, region, objectKey}) => {
@@ -92,7 +99,7 @@ const callDeleteObject = ({url, headers}) => new Promise((resolve, reject) => {
         path: `${url.pathname}${url.search}`,
         headers,
     }, response => {
-        response.on('data', () => {});
+        response.on('data', () => undefined);
         response.on('end', () => {
             const statusCode = Number(response.statusCode) || 0;
             resolve(statusCode);
@@ -121,11 +128,20 @@ class MediaService {
         const objectAcl = String(process.env.IRCOM_S3_OBJECT_ACL || mediaConfig.objectAcl || '').trim();
         const maxUploadBytes = Math.min(
             MAX_UPLOAD_BYTES,
-            Math.max(1, toInt(process.env.IRCOM_S3_MAX_UPLOAD_BYTES || mediaConfig.maxUploadBytes, DEFAULT_UPLOAD_BYTES)),
+            Math.max(
+                1,
+                toInt(process.env.IRCOM_S3_MAX_UPLOAD_BYTES || mediaConfig.maxUploadBytes, DEFAULT_UPLOAD_BYTES),
+            ),
         );
         const expiresSeconds = Math.max(
             60,
-            Math.min(900, toInt(process.env.IRCOM_S3_UPLOAD_EXPIRES_SECONDS || mediaConfig.uploadExpiresSeconds, DEFAULT_UPLOAD_EXPIRES_SECONDS)),
+            Math.min(
+                900,
+                toInt(
+                    process.env.IRCOM_S3_UPLOAD_EXPIRES_SECONDS || mediaConfig.uploadExpiresSeconds,
+                    DEFAULT_UPLOAD_EXPIRES_SECONDS,
+                ),
+            ),
         );
 
         if (!bucket || !accessKeyId || !secretAccessKey) {
@@ -177,7 +193,9 @@ class MediaService {
             throw new Story.errors.BadRequestError('Неподдерживаемый тип изображения');
         }
         if (params.byteSize > config.maxUploadBytes) {
-            throw new Story.errors.BadRequestError(`Изображение слишком большое. Максимум ${config.maxUploadBytes} байт`);
+            throw new Story.errors.BadRequestError(
+                `Изображение слишком большое. Максимум ${config.maxUploadBytes} байт`,
+            );
         }
 
         const now = new Date();
@@ -275,7 +293,7 @@ class MediaService {
         const payloadHash = hashSha256Hex('');
 
         const canonicalHeadersMap = {
-            host: url.host,
+            'host': url.host,
             'x-amz-content-sha256': payloadHash,
             'x-amz-date': amzDate,
             ...(config.sessionToken ? {'x-amz-security-token': config.sessionToken} : {}),
@@ -315,11 +333,11 @@ class MediaService {
         const statusCode = await callDeleteObject({
             url,
             headers: {
-                Host: url.host,
+                'Host': url.host,
                 'x-amz-content-sha256': payloadHash,
                 'x-amz-date': amzDate,
                 ...(config.sessionToken ? {'x-amz-security-token': config.sessionToken} : {}),
-                Authorization: `AWS4-HMAC-SHA256 Credential=${config.accessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+                'Authorization': `AWS4-HMAC-SHA256 Credential=${config.accessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
             },
         });
 
