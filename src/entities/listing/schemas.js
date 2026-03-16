@@ -61,6 +61,8 @@ const createListingSchema = {
             type: 'number',
             minimum: 1,
         },
+        phone: string1,
+        telegram: string1,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
@@ -99,6 +101,8 @@ const updateListingSchema = {
             type: 'number',
             minimum: 1,
         },
+        phone: string1,
+        telegram: string1,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',

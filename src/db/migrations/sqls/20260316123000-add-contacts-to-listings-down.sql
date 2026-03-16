@@ -1,0 +1,3 @@
+ALTER TABLE listings
+    DROP COLUMN IF EXISTS telegram,
+    DROP COLUMN IF EXISTS phone;

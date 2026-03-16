@@ -59,6 +59,8 @@ module.exports = {
                 ,title = :title
                 ,description = :description
                 ,price = :price
+                ,phone = :phone
+                ,telegram = :telegram
                 ,real_estate_type = :realEstateType
                 ,photos = COALESCE(:photos, '[]'::jsonb)
                 ,listing_category_id = rc.listing_category_id
@@ -79,6 +81,8 @@ module.exports = {
                 ,l.title
                 ,l.description
                 ,l.price
+                ,l.phone
+                ,l.telegram
                 ,l.real_estate_type
                 ,l.photos
                 ,l.created_at
@@ -91,6 +95,8 @@ module.exports = {
                 ,title
                 ,description
                 ,price
+                ,phone
+                ,telegram
                 ,real_estate_type
                 ,photos
                 ,listing_category_id
@@ -103,6 +109,8 @@ module.exports = {
                 ,:title
                 ,:description
                 ,:price
+                ,:phone
+                ,:telegram
                 ,:realEstateType
                 ,COALESCE(:photos, '[]'::jsonb)
                 ,rc.listing_category_id
@@ -121,6 +129,8 @@ module.exports = {
                 ,title
                 ,description
                 ,price
+                ,phone
+                ,telegram
                 ,real_estate_type
                 ,photos
                 ,created_at
@@ -180,11 +190,25 @@ module.exports = {
             ,sl.title
             ,sl.description
             ,sl.price
+            ,sl.phone
+            ,sl.telegram
             ,sl.real_estate_type AS "realEstateType"
             ,sl.photos
             ,sl.created_at AS "createdAt"
+            ,CASE
+                WHEN lai.listing_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', lai.source
+                    ,'msgId', lai.msg_id
+                    ,'date', lai.message_date
+                    ,'permalink', lai.permalink
+                    ,'contentHash', lai.content_hash
+                    ,'photoObjectKeys', lai.photo_object_keys
+                )
+            END AS "importMeta"
         FROM
-            saved_listing AS sl;`,
+            saved_listing AS sl
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = sl.listing_id;`,
 
     updateListing: `
         WITH resolved_category AS (
@@ -224,38 +248,73 @@ module.exports = {
                     )
                 )
             LIMIT 1
+        ),
+        updated_listing AS (
+            UPDATE listings AS l
+            SET
+                 category = rc.category_name
+                ,title = :title
+                ,description = :description
+                ,price = :price
+                ,phone = COALESCE(:phone, l.phone)
+                ,telegram = COALESCE(:telegram, l.telegram)
+                ,real_estate_type = :realEstateType
+                ,photos = COALESCE(:photos, '[]'::jsonb)
+                ,listing_category_id = rc.listing_category_id
+                ,service_category_id = rc.service_category_id
+                ,updated_at = NOW()
+            FROM
+                resolved_category AS rc
+            WHERE
+                l.listing_id = :listingId
+                AND l.owner_account_id = :accountId
+                AND l.kind = :kind
+                AND l.is_active = TRUE
+            RETURNING
+                 l.listing_id AS "listingId"
+                ,l.owner_account_id AS "accountId"
+                ,l.kind
+                ,COALESCE(l.listing_category_id, l.service_category_id) AS "categoryId"
+                ,l.category
+                ,l.title
+                ,l.description
+                ,l.price
+                ,l.phone
+                ,l.telegram
+                ,l.real_estate_type AS "realEstateType"
+                ,l.photos
+                ,l.created_at AS "createdAt"
+                ,l.updated_at AS "updatedAt"
         )
-        UPDATE listings AS l
-        SET
-             category = rc.category_name
-            ,title = :title
-            ,description = :description
-            ,price = :price
-            ,real_estate_type = :realEstateType
-            ,photos = COALESCE(:photos, '[]'::jsonb)
-            ,listing_category_id = rc.listing_category_id
-            ,service_category_id = rc.service_category_id
-            ,updated_at = NOW()
+        SELECT
+             ul."listingId"
+            ,ul."accountId"
+            ,ul.kind
+            ,ul."categoryId"
+            ,ul.category
+            ,ul.title
+            ,ul.description
+            ,ul.price
+            ,ul.phone
+            ,ul.telegram
+            ,ul."realEstateType"
+            ,ul.photos
+            ,ul."createdAt"
+            ,ul."updatedAt"
+            ,CASE
+                WHEN lai.listing_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', lai.source
+                    ,'msgId', lai.msg_id
+                    ,'date', lai.message_date
+                    ,'permalink', lai.permalink
+                    ,'contentHash', lai.content_hash
+                    ,'photoObjectKeys', lai.photo_object_keys
+                )
+            END AS "importMeta"
         FROM
-            resolved_category AS rc
-        WHERE
-            l.listing_id = :listingId
-            AND l.owner_account_id = :accountId
-            AND l.kind = :kind
-            AND l.is_active = TRUE
-        RETURNING
-             l.listing_id AS "listingId"
-            ,l.owner_account_id AS "accountId"
-            ,l.kind
-            ,COALESCE(l.listing_category_id, l.service_category_id) AS "categoryId"
-            ,l.category
-            ,l.title
-            ,l.description
-            ,l.price
-            ,l.real_estate_type AS "realEstateType"
-            ,l.photos
-            ,l.created_at AS "createdAt"
-            ,l.updated_at AS "updatedAt";`,
+            updated_listing AS ul
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = ul."listingId";`,
 
     getListings: `
         SELECT
@@ -271,15 +330,27 @@ module.exports = {
             ,l.created_at AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
-            ,a.phone
+            ,COALESCE(l.phone, a.phone) AS phone
             ,a.whatsapp
-            ,a.telegram
+            ,COALESCE(l.telegram, a.telegram) AS telegram
             ,COALESCE(lf.account_id IS NOT NULL, FALSE) AS "isFavorite"
+            ,CASE
+                WHEN lai.listing_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', lai.source
+                    ,'msgId', lai.msg_id
+                    ,'date', lai.message_date
+                    ,'permalink', lai.permalink
+                    ,'contentHash', lai.content_hash
+                    ,'photoObjectKeys', lai.photo_object_keys
+                )
+            END AS "importMeta"
         FROM
             listings AS l
             INNER JOIN accounts AS a ON a.account_id = l.owner_account_id
             LEFT JOIN listing_categories AS lc ON lc.category_id = l.listing_category_id
             LEFT JOIN service_categories AS sc ON sc.category_id = l.service_category_id
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = l.listing_id
             LEFT JOIN listing_favorites AS lf
                 ON lf.listing_id = l.listing_id
                 AND lf.account_id = :accountId
@@ -311,15 +382,27 @@ module.exports = {
             ,l.created_at AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
-            ,a.phone
+            ,COALESCE(l.phone, a.phone) AS phone
             ,a.whatsapp
-            ,a.telegram
+            ,COALESCE(l.telegram, a.telegram) AS telegram
             ,COALESCE(lf.account_id IS NOT NULL, FALSE) AS "isFavorite"
+            ,CASE
+                WHEN lai.listing_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', lai.source
+                    ,'msgId', lai.msg_id
+                    ,'date', lai.message_date
+                    ,'permalink', lai.permalink
+                    ,'contentHash', lai.content_hash
+                    ,'photoObjectKeys', lai.photo_object_keys
+                )
+            END AS "importMeta"
         FROM
             listings AS l
             INNER JOIN accounts AS a ON a.account_id = l.owner_account_id
             LEFT JOIN listing_categories AS lc ON lc.category_id = l.listing_category_id
             LEFT JOIN service_categories AS sc ON sc.category_id = l.service_category_id
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = l.listing_id
             LEFT JOIN listing_favorites AS lf
                 ON lf.listing_id = l.listing_id
                 AND lf.account_id = :accountId
@@ -336,14 +419,30 @@ module.exports = {
             ,l.title
             ,l.description
             ,l.price
+            ,COALESCE(l.phone, a.phone) AS phone
+            ,a.whatsapp
+            ,COALESCE(l.telegram, a.telegram) AS telegram
             ,l.real_estate_type AS "realEstateType"
             ,l.photos
             ,l.created_at AS "createdAt"
             ,l.is_active AS "isActive"
+            ,CASE
+                WHEN lai.listing_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', lai.source
+                    ,'msgId', lai.msg_id
+                    ,'date', lai.message_date
+                    ,'permalink', lai.permalink
+                    ,'contentHash', lai.content_hash
+                    ,'photoObjectKeys', lai.photo_object_keys
+                )
+            END AS "importMeta"
         FROM
             listings AS l
+            INNER JOIN accounts AS a ON a.account_id = l.owner_account_id
             LEFT JOIN listing_categories AS lc ON lc.category_id = l.listing_category_id
             LEFT JOIN service_categories AS sc ON sc.category_id = l.service_category_id
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = l.listing_id
         WHERE
             l.owner_account_id = :accountId
             AND l.kind = :kind

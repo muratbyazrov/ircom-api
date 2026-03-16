@@ -32,6 +32,11 @@ const normalizeOptionalInt = value => {
     return null;
 };
 
+const normalizeOptionalText = value => {
+    const text = String(value || '').trim();
+    return text || null;
+};
+
 const normalizeImportMeta = params => {
     const importMeta = params.importMeta || null;
     if (!importMeta) {
@@ -85,6 +90,8 @@ class ListingService {
         const queryParams = {
             ...params,
             categoryId,
+            phone: normalizeOptionalText(params.phone),
+            telegram: normalizeOptionalText(params.telegram),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
             ...normalizeImportMeta(params),
@@ -104,6 +111,8 @@ class ListingService {
         const queryParams = {
             ...params,
             categoryId,
+            phone: normalizeOptionalText(params.phone),
+            telegram: normalizeOptionalText(params.telegram),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
         };
