@@ -6,6 +6,34 @@ const listingPhoto = {
     maxLength: 2048,
 };
 
+const importedPhotoObjectKey = {
+    type: 'string',
+    minLength: 1,
+    maxLength: 2048,
+};
+
+const importMetaSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['source', 'msgId', 'date'],
+    properties: {
+        source: string1,
+        msgId: number1,
+        date: {
+            type: 'string',
+            minLength: 10,
+            maxLength: 64,
+        },
+        permalink: string1,
+        contentHash: string1,
+        photoObjectKeys: {
+            type: 'array',
+            maxItems: 10,
+            items: importedPhotoObjectKey,
+        },
+    },
+};
+
 const createListingSchema = {
     id: 'createListingSchema',
     additionalProperties: false,
@@ -39,6 +67,7 @@ const createListingSchema = {
             maxItems: 10,
             items: listingPhoto,
         },
+        importMeta: importMetaSchema,
     },
 };
 
@@ -75,6 +104,21 @@ const updateListingSchema = {
             type: 'array',
             maxItems: 10,
             items: listingPhoto,
+        },
+    },
+};
+
+const cleanupImportedListingsSchema = {
+    id: 'cleanupImportedListingsSchema',
+    additionalProperties: false,
+    required: ['accountId', 'kind', 'olderThan'],
+    properties: {
+        accountId: number1,
+        kind: {enum: [1, 2]},
+        olderThan: {
+            type: 'string',
+            minLength: 10,
+            maxLength: 64,
         },
     },
 };
@@ -141,4 +185,5 @@ module.exports = {
     getListingByIdSchema,
     getMyListingsSchema,
     toggleListingFavoriteSchema,
+    cleanupImportedListingsSchema,
 };

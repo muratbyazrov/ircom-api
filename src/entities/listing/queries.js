@@ -37,44 +37,154 @@ module.exports = {
                     )
                 )
             LIMIT 1
-        )
-        INSERT INTO listings (
-             owner_account_id
-            ,kind
-            ,category
-            ,title
-            ,description
-            ,price
-            ,real_estate_type
-            ,photos
-            ,listing_category_id
-            ,service_category_id
+        ),
+        existing_import AS (
+            SELECT
+                lai.listing_id
+            FROM
+                listing_aggregator_imports AS lai
+            WHERE
+                :importSource::text IS NOT NULL
+                AND :importMsgId::bigint IS NOT NULL
+                AND lai.source = :importSource
+                AND lai.msg_id = :importMsgId
+            LIMIT 1
+        ),
+        updated_listing AS (
+            UPDATE listings AS l
+            SET
+                 owner_account_id = :accountId
+                ,kind = :kind
+                ,category = rc.category_name
+                ,title = :title
+                ,description = :description
+                ,price = :price
+                ,real_estate_type = :realEstateType
+                ,photos = COALESCE(:photos, '[]'::jsonb)
+                ,listing_category_id = rc.listing_category_id
+                ,service_category_id = rc.service_category_id
+                ,updated_at = NOW()
+            FROM
+                resolved_category AS rc
+                INNER JOIN existing_import AS ei ON TRUE
+            WHERE
+                l.listing_id = ei.listing_id
+            RETURNING
+                 l.listing_id
+                ,l.owner_account_id
+                ,l.kind
+                ,l.listing_category_id
+                ,l.service_category_id
+                ,l.category
+                ,l.title
+                ,l.description
+                ,l.price
+                ,l.real_estate_type
+                ,l.photos
+                ,l.created_at
+        ),
+        inserted_listing AS (
+            INSERT INTO listings (
+                 owner_account_id
+                ,kind
+                ,category
+                ,title
+                ,description
+                ,price
+                ,real_estate_type
+                ,photos
+                ,listing_category_id
+                ,service_category_id
+            )
+            SELECT
+                 :accountId
+                ,:kind
+                ,rc.category_name
+                ,:title
+                ,:description
+                ,:price
+                ,:realEstateType
+                ,COALESCE(:photos, '[]'::jsonb)
+                ,rc.listing_category_id
+                ,rc.service_category_id
+            FROM
+                resolved_category AS rc
+            WHERE
+                NOT EXISTS (SELECT 1 FROM existing_import)
+            RETURNING
+                 listing_id
+                ,owner_account_id
+                ,kind
+                ,listing_category_id
+                ,service_category_id
+                ,category
+                ,title
+                ,description
+                ,price
+                ,real_estate_type
+                ,photos
+                ,created_at
+        ),
+        saved_listing AS (
+            SELECT * FROM updated_listing
+            UNION ALL
+            SELECT * FROM inserted_listing
+        ),
+        updated_import AS (
+            UPDATE listing_aggregator_imports AS lai
+            SET
+                 message_date = :importDate::timestamptz
+                ,permalink = :importPermalink
+                ,content_hash = :importContentHash
+                ,photo_object_keys = COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
+                ,updated_at = NOW()
+            FROM
+                existing_import AS ei
+            WHERE
+                lai.listing_id = ei.listing_id
+            RETURNING lai.listing_id
+        ),
+        inserted_import AS (
+            INSERT INTO listing_aggregator_imports (
+                 listing_id
+                ,source
+                ,msg_id
+                ,message_date
+                ,permalink
+                ,content_hash
+                ,photo_object_keys
+            )
+            SELECT
+                 sl.listing_id
+                ,:importSource
+                ,:importMsgId
+                ,:importDate::timestamptz
+                ,:importPermalink
+                ,:importContentHash
+                ,COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
+            FROM
+                saved_listing AS sl
+            WHERE
+                :importSource::text IS NOT NULL
+                AND :importMsgId::bigint IS NOT NULL
+                AND :importDate::timestamptz IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM existing_import)
+            RETURNING listing_id
         )
         SELECT
-             :accountId
-            ,:kind
-            ,rc.category_name
-            ,:title
-            ,:description
-            ,:price
-            ,:realEstateType
-            ,COALESCE(:photos, '[]'::jsonb)
-            ,rc.listing_category_id
-            ,rc.service_category_id
+             sl.listing_id AS "listingId"
+            ,sl.owner_account_id AS "accountId"
+            ,sl.kind
+            ,COALESCE(sl.listing_category_id, sl.service_category_id) AS "categoryId"
+            ,sl.category
+            ,sl.title
+            ,sl.description
+            ,sl.price
+            ,sl.real_estate_type AS "realEstateType"
+            ,sl.photos
+            ,sl.created_at AS "createdAt"
         FROM
-            resolved_category AS rc
-        RETURNING
-             listing_id AS "listingId"
-            ,owner_account_id AS "accountId"
-            ,kind
-            ,COALESCE(listing_category_id, service_category_id) AS "categoryId"
-            ,category
-            ,title
-            ,description
-            ,price
-            ,real_estate_type AS "realEstateType"
-            ,photos
-            ,created_at AS "createdAt";`,
+            saved_listing AS sl;`,
 
     updateListing: `
         WITH resolved_category AS (
@@ -270,4 +380,45 @@ module.exports = {
              :listingId AS "listingId"
             ,:accountId AS "accountId"
             ,EXISTS (SELECT 1 FROM inserted) AS "isFavorite";`,
+
+    getExpiredImportedListings: `
+        SELECT
+             l.listing_id AS "listingId"
+            ,lai.photo_object_keys AS "photoObjectKeys"
+        FROM
+            listing_aggregator_imports AS lai
+            INNER JOIN listings AS l ON l.listing_id = lai.listing_id
+        WHERE
+            l.owner_account_id = :accountId
+            AND l.kind = :kind
+            AND lai.message_date < :olderThan::timestamptz
+        ORDER BY
+            lai.message_date ASC,
+            l.listing_id ASC;`,
+
+    deleteImportedListing: `
+        WITH target AS (
+            SELECT
+                l.listing_id
+            FROM
+                listings AS l
+                INNER JOIN listing_aggregator_imports AS lai ON lai.listing_id = l.listing_id
+            WHERE
+                l.listing_id = :listingId
+                AND l.owner_account_id = :accountId
+                AND l.kind = :kind
+        ),
+        deleted_favorites AS (
+            DELETE FROM listing_favorites
+            WHERE listing_id IN (SELECT listing_id FROM target)
+        ),
+        deleted_listing AS (
+            DELETE FROM listings
+            WHERE listing_id IN (SELECT listing_id FROM target)
+            RETURNING listing_id
+        )
+        SELECT
+            listing_id AS "listingId"
+        FROM
+            deleted_listing;`,
 };

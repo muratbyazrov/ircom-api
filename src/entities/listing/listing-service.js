@@ -1,4 +1,5 @@
 const {Story} = require('story-system');
+const {MediaService} = require('../media/media-service.js');
 const {
     createListing,
     updateListing,
@@ -6,6 +7,8 @@ const {
     getListingById,
     getMyListings,
     toggleListingFavorite,
+    getExpiredImportedListings,
+    deleteImportedListing,
 } = require('./queries.js');
 
 const normalizePhotos = params => {
@@ -29,7 +32,54 @@ const normalizeOptionalInt = value => {
     return null;
 };
 
+const normalizeImportMeta = params => {
+    const importMeta = params.importMeta || null;
+    if (!importMeta) {
+        return {
+            importSource: null,
+            importMsgId: null,
+            importDate: null,
+            importPermalink: null,
+            importContentHash: null,
+            importPhotoObjectKeys: null,
+        };
+    }
+
+    return {
+        importSource: importMeta.source || null,
+        importMsgId: Number.isInteger(importMeta.msgId) ?
+            importMeta.msgId :
+            normalizeOptionalInt(importMeta.msgId),
+        importDate: importMeta.date || null,
+        importPermalink: importMeta.permalink || null,
+        importContentHash: importMeta.contentHash || null,
+        importPhotoObjectKeys: JSON.stringify(
+            Array.isArray(importMeta.photoObjectKeys) ? importMeta.photoObjectKeys : [],
+        ),
+    };
+};
+
+const normalizePhotoObjectKeys = value => {
+    if (Array.isArray(value)) {
+        return value.map(item => String(item || '').trim()).filter(Boolean);
+    }
+
+    if (typeof value === 'string' && value.trim().length > 0) {
+        try {
+            return normalizePhotoObjectKeys(JSON.parse(value));
+        } catch (error) {
+            return [];
+        }
+    }
+
+    return [];
+};
+
 class ListingService {
+    constructor(config = {}) {
+        this.mediaService = new MediaService(config);
+    }
+
     createListing({params}) {
         const categoryId = normalizeOptionalInt(params.categoryId);
         const queryParams = {
@@ -37,6 +87,7 @@ class ListingService {
             categoryId,
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
+            ...normalizeImportMeta(params),
         };
 
         return Story.dbAdapter.execQuery({
@@ -128,6 +179,64 @@ class ListingService {
                 singularRow: true,
             },
         });
+    }
+
+    async cleanupImportedListings({params}) {
+        const expiredListings = await Story.dbAdapter.execQuery({
+            queryName: getExpiredImportedListings,
+            params,
+        });
+
+        let deletedListings = 0;
+        let deletedPhotos = 0;
+        let failedPhotos = 0;
+
+        for (const listing of expiredListings) {
+            const photoObjectKeys = normalizePhotoObjectKeys(listing.photoObjectKeys);
+            let canDeleteListing = true;
+
+            for (const objectKey of photoObjectKeys) {
+                try {
+                    await this.mediaService.deletePhoto({
+                        params: {
+                            accountId: params.accountId,
+                            objectKey,
+                        },
+                    });
+                    deletedPhotos++;
+                } catch (error) {
+                    failedPhotos++;
+                    canDeleteListing = false;
+                    break;
+                }
+            }
+
+            if (!canDeleteListing) {
+                continue;
+            }
+
+            const deleted = await Story.dbAdapter.execQuery({
+                queryName: deleteImportedListing,
+                params: {
+                    accountId: params.accountId,
+                    kind: params.kind,
+                    listingId: listing.listingId,
+                },
+                options: {
+                    singularRow: true,
+                },
+            });
+
+            if (deleted && deleted.listingId) {
+                deletedListings++;
+            }
+        }
+
+        return {
+            deletedListings,
+            deletedPhotos,
+            failedPhotos,
+        };
     }
 }
 

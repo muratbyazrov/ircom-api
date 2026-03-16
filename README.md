@@ -68,6 +68,7 @@ IRCOM_S3_SECRET_ACCESS_KEY=...
 
 ### listing
 - `createListing` — создаёт новое объявление/услугу от имени пользователя.
+- `cleanupImportedListings` — удаляет старые объявления/услуги, импортированные агрегатором, вместе с их фото из S3.
 - `updateListing` — обновляет существующее объявление пользователя.
 - `getListings` — возвращает список объявлений с фильтрами, сортировкой и пагинацией.
 - `getListingById` — возвращает детальную карточку объявления по `listingId`.
@@ -96,6 +97,7 @@ IRCOM_S3_SECRET_ACCESS_KEY=...
 ### media
 - `initPhotoUpload` — выдаёт `presigned POST` для прямой загрузки изображения в S3.
 - `buildPhotoUrl` — строит URL просмотра по `objectKey` (если настроен `IRCOM_S3_PUBLIC_BASE_URL`).
+- `deletePhoto` — удаляет объект из S3 по `objectKey`.
 
 ### dictionary
 - `getListingCategories` — возвращает активные категории объявлений.

@@ -6,6 +6,7 @@ const {
     getListingByIdSchema,
     getMyListingsSchema,
     toggleListingFavoriteSchema,
+    cleanupImportedListingsSchema,
 } = require('./schemas.js');
 
 class ListingController {
@@ -41,6 +42,11 @@ class ListingController {
     toggleListingFavorite(data) {
         Story.validator.validate(data.params, toggleListingFavoriteSchema);
         return this.service.toggleListingFavorite(data);
+    }
+
+    cleanupImportedListings(data) {
+        Story.validator.validate(data.params, cleanupImportedListingsSchema);
+        return this.service.cleanupImportedListings(data);
     }
 }
 
