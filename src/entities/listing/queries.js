@@ -330,9 +330,18 @@ module.exports = {
             ,l.created_at AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
-            ,COALESCE(l.phone, a.phone) AS phone
-            ,a.whatsapp
-            ,COALESCE(l.telegram, a.telegram) AS telegram
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.phone
+                ELSE COALESCE(l.phone, a.phone)
+            END AS phone
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN NULL
+                ELSE a.whatsapp
+            END AS whatsapp
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.telegram
+                ELSE COALESCE(l.telegram, a.telegram)
+            END AS telegram
             ,COALESCE(lf.account_id IS NOT NULL, FALSE) AS "isFavorite"
             ,CASE
                 WHEN lai.listing_id IS NULL THEN NULL
@@ -382,9 +391,18 @@ module.exports = {
             ,l.created_at AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
-            ,COALESCE(l.phone, a.phone) AS phone
-            ,a.whatsapp
-            ,COALESCE(l.telegram, a.telegram) AS telegram
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.phone
+                ELSE COALESCE(l.phone, a.phone)
+            END AS phone
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN NULL
+                ELSE a.whatsapp
+            END AS whatsapp
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.telegram
+                ELSE COALESCE(l.telegram, a.telegram)
+            END AS telegram
             ,COALESCE(lf.account_id IS NOT NULL, FALSE) AS "isFavorite"
             ,CASE
                 WHEN lai.listing_id IS NULL THEN NULL
@@ -419,9 +437,18 @@ module.exports = {
             ,l.title
             ,l.description
             ,l.price
-            ,COALESCE(l.phone, a.phone) AS phone
-            ,a.whatsapp
-            ,COALESCE(l.telegram, a.telegram) AS telegram
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.phone
+                ELSE COALESCE(l.phone, a.phone)
+            END AS phone
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN NULL
+                ELSE a.whatsapp
+            END AS whatsapp
+            ,CASE
+                WHEN lai.listing_id IS NOT NULL THEN l.telegram
+                ELSE COALESCE(l.telegram, a.telegram)
+            END AS telegram
             ,l.real_estate_type AS "realEstateType"
             ,l.photos
             ,l.created_at AS "createdAt"

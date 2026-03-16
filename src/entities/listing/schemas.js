@@ -1,4 +1,4 @@
-const {Story: {validator: {schemaItems: {number1, string1, limit}}}} = require('story-system');
+const {Story: {validator: {schemaItems: {number1, string1, nullOrString, limit}}}} = require('story-system');
 
 const listingPhoto = {
     type: 'string',
@@ -61,8 +61,8 @@ const createListingSchema = {
             type: 'number',
             minimum: 1,
         },
-        phone: string1,
-        telegram: string1,
+        phone: nullOrString,
+        telegram: nullOrString,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
@@ -101,8 +101,8 @@ const updateListingSchema = {
             type: 'number',
             minimum: 1,
         },
-        phone: string1,
-        telegram: string1,
+        phone: nullOrString,
+        telegram: nullOrString,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
