@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-    var filePath = path.join(__dirname, 'sqls', '20260222160000-add-delivery-mode-price-to-restaurants-up.sql');
+    var filePath = path.join(__dirname, 'sqls', '20260316150000-create-core-tables-up.sql');
     return new Promise(function(resolve, reject) {
         fs.readFile(filePath, {encoding: 'utf-8'}, function(err, data) {
             if (err) return reject(err);
@@ -27,7 +27,7 @@ exports.up = function(db) {
 };
 
 exports.down = function(db) {
-    var filePath = path.join(__dirname, 'sqls', '20260222160000-add-delivery-mode-price-to-restaurants-down.sql');
+    var filePath = path.join(__dirname, 'sqls', '20260316150000-create-core-tables-down.sql');
     return new Promise(function(resolve, reject) {
         fs.readFile(filePath, {encoding: 'utf-8'}, function(err, data) {
             if (err) return reject(err);

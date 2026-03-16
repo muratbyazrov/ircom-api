@@ -1,3 +1,0 @@
-ALTER TABLE listings
-    ADD COLUMN IF NOT EXISTS phone TEXT,
-    ADD COLUMN IF NOT EXISTS telegram TEXT;
