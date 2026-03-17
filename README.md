@@ -52,15 +52,25 @@ IRCOM_S3_BUCKET=your-bucket
 IRCOM_S3_REGION=eu-central-1
 IRCOM_S3_ACCESS_KEY_ID=...
 IRCOM_S3_SECRET_ACCESS_KEY=...
+TELEGRAM_BOT_TOKEN=123456:replace-me # optional, for Telegram Mini App auto-auth
 ```
 
 Для `NODE_ENV=production` эти `IRCOM_DB_*` используются не только приложением, но и `db-migrate` во время старта миграций.
+
+## Telegram auto-auth
+
+- API поддерживает вход по проверенному `Telegram.WebApp.initData`.
+- Для привязки аккаунта сохраняется `telegram_user_id`.
+- Если Mini App открыт из бота, API автоматически создаёт аккаунт, сразу открывает сессию и отправляет логин/пароль сообщением от бота.
+- Если у пользователя есть `username`, он используется как логин, когда подходит по длине, и как контакт `@username` в профиле.
+- Если `username` нет или он слишком короткий, API генерирует логин автоматически.
 
 ## Основные методы
 
 ### account
 - `register` — регистрирует нового пользователя по имени, телефону и паролю.
-- `signIn` — выполняет вход и возвращает сессию пользователя.
+- `signIn` — выполняет вход по телефону или логину и возвращает сессию пользователя.
+- `telegramAuth` — создаёт/авторизует пользователя по `initData` из Telegram Mini App.
 - `getSession` — проверяет и возвращает данные активной сессии по `sessionToken`.
 - `signOut` — завершает сессию пользователя по `sessionToken`.
 - `createOrUpdateAccount` — создаёт или обновляет профиль аккаунта (имя, контакты).

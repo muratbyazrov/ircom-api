@@ -28,18 +28,33 @@ const registerSchema = {
 const signInSchema = {
     id: 'signInSchema',
     additionalProperties: false,
-    required: ['phone', 'password'],
+    required: ['password'],
     properties: {
         phone: {
             type: 'string',
             minLength: 6,
             maxLength: 20,
         },
+        login: {
+            type: 'string',
+            minLength: 3,
+            maxLength: 64,
+        },
         password: {
             type: 'string',
             minLength: 6,
             maxLength: 128,
         },
+    },
+};
+
+const telegramAuthSchema = {
+    id: 'telegramAuthSchema',
+    additionalProperties: false,
+    required: ['initData'],
+    properties: {
+        initData: string1,
+        phone: nullOrString,
     },
 };
 
@@ -86,6 +101,7 @@ const getProfileSchema = {
 module.exports = {
     registerSchema,
     signInSchema,
+    telegramAuthSchema,
     getSessionSchema,
     signOutSchema,
     createOrUpdateAccountSchema,

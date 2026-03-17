@@ -2,26 +2,32 @@ module.exports = {
     createAccount: `
         INSERT INTO accounts (
              name
+            ,login
             ,phone
             ,password_hash
             ,password_salt
             ,whatsapp
             ,telegram
+            ,telegram_user_id
         )
         VALUES (
              :name
+            ,:login
             ,:phone
             ,:passwordHash
             ,:passwordSalt
             ,:whatsapp
             ,:telegram
+            ,:telegramUserId
         )
         RETURNING
              account_id AS "accountId"
             ,name
+            ,login
             ,phone
             ,whatsapp
             ,telegram
+            ,telegram_user_id AS "telegramUserId"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -29,9 +35,11 @@ module.exports = {
         SELECT
              account_id AS "accountId"
             ,name
+            ,login
             ,phone
             ,whatsapp
             ,telegram
+            ,telegram_user_id AS "telegramUserId"
             ,password_hash AS "passwordHash"
             ,password_salt AS "passwordSalt"
         FROM
@@ -39,6 +47,58 @@ module.exports = {
         WHERE
             regexp_replace(COALESCE(phone, ''), '\s+', '', 'g') = :phone
         LIMIT 1;`,
+
+    getAuthAccountByLogin: `
+        SELECT
+             account_id AS "accountId"
+            ,name
+            ,login
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,telegram_user_id AS "telegramUserId"
+            ,password_hash AS "passwordHash"
+            ,password_salt AS "passwordSalt"
+        FROM
+            accounts
+        WHERE
+            LOWER(COALESCE(login, '')) = LOWER(:login)
+        LIMIT 1;`,
+
+    getAccountByTelegramUserId: `
+        SELECT
+             account_id AS "accountId"
+            ,name
+            ,login
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,telegram_user_id AS "telegramUserId"
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt"
+        FROM
+            accounts
+        WHERE
+            telegram_user_id = :telegramUserId
+        LIMIT 1;`,
+
+    updateTelegramContact: `
+        UPDATE accounts
+        SET
+             telegram = :telegram
+            ,updated_at = NOW()
+        WHERE
+            account_id = :accountId
+        RETURNING
+             account_id AS "accountId"
+            ,name
+            ,login
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,telegram_user_id AS "telegramUserId"
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
 
     createSession: `
         INSERT INTO account_sessions (
@@ -61,9 +121,11 @@ module.exports = {
             ,s.expires_at AS "expiresAt"
             ,a.account_id AS "accountId"
             ,a.name
+            ,a.login
             ,a.phone
             ,a.whatsapp
             ,a.telegram
+            ,a.telegram_user_id AS "telegramUserId"
         FROM
             account_sessions AS s
             INNER JOIN accounts AS a ON a.account_id = s.account_id
@@ -90,9 +152,11 @@ module.exports = {
         RETURNING
              account_id AS "accountId"
             ,name
+            ,login
             ,phone
             ,whatsapp
             ,telegram
+            ,telegram_user_id AS "telegramUserId"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -100,9 +164,11 @@ module.exports = {
         SELECT
              account_id AS "accountId"
             ,name
+            ,login
             ,phone
             ,whatsapp
             ,telegram
+            ,telegram_user_id AS "telegramUserId"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt"
         FROM

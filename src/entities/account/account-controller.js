@@ -2,6 +2,7 @@ const {Story} = require('story-system');
 const {
     registerSchema,
     signInSchema,
+    telegramAuthSchema,
     getSessionSchema,
     signOutSchema,
     createOrUpdateAccountSchema,
@@ -21,6 +22,11 @@ class AccountController {
     signIn(data) {
         Story.validator.validate(data.params, signInSchema);
         return this.service.signIn(data);
+    }
+
+    telegramAuth(data) {
+        Story.validator.validate(data.params, telegramAuthSchema);
+        return this.service.telegramAuth(data);
     }
 
     getSession(data) {
