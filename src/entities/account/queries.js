@@ -9,6 +9,7 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id
+            ,telegram_credentials_sent_at
         )
         VALUES (
              :name
@@ -19,6 +20,7 @@ module.exports = {
             ,:whatsapp
             ,:telegram
             ,:telegramUserId
+            ,NULL
         )
         RETURNING
              account_id AS "accountId"
@@ -28,6 +30,7 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -74,6 +77,7 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt"
         FROM
@@ -97,6 +101,47 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
+    setTelegramCredentials: `
+        UPDATE accounts
+        SET
+             password_hash = :passwordHash
+            ,password_salt = :passwordSalt
+            ,telegram = COALESCE(:telegram, telegram)
+            ,updated_at = NOW()
+        WHERE
+            account_id = :accountId
+        RETURNING
+             account_id AS "accountId"
+            ,name
+            ,login
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
+            ,created_at AS "createdAt"
+            ,updated_at AS "updatedAt";`,
+
+    markTelegramCredentialsSent: `
+        UPDATE accounts
+        SET
+             telegram_credentials_sent_at = NOW()
+            ,updated_at = NOW()
+        WHERE
+            account_id = :accountId
+        RETURNING
+             account_id AS "accountId"
+            ,name
+            ,login
+            ,phone
+            ,whatsapp
+            ,telegram
+            ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -126,6 +171,7 @@ module.exports = {
             ,a.whatsapp
             ,a.telegram
             ,a.telegram_user_id AS "telegramUserId"
+            ,a.telegram_credentials_sent_at AS "telegramCredentialsSentAt"
         FROM
             account_sessions AS s
             INNER JOIN accounts AS a ON a.account_id = s.account_id
@@ -157,6 +203,7 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt";`,
 
@@ -169,6 +216,7 @@ module.exports = {
             ,whatsapp
             ,telegram
             ,telegram_user_id AS "telegramUserId"
+            ,telegram_credentials_sent_at AS "telegramCredentialsSentAt"
             ,created_at AS "createdAt"
             ,updated_at AS "updatedAt"
         FROM

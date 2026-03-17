@@ -8,6 +8,8 @@ const {
     getAuthAccountByLogin,
     getAccountByTelegramUserId,
     updateTelegramContact,
+    setTelegramCredentials,
+    markTelegramCredentialsSent,
     createSession,
     getSession,
     signOut,
@@ -201,6 +203,15 @@ const ensureUniqueLogin = async ({baseLogin, telegramUserId}) => {
     return `${baseLogin}_${telegramUserId}`;
 };
 
+const buildTelegramCredentialsMessage = ({login, password}) => [
+    'Ваш аккаунт в IRCOM готов.',
+    '',
+    `Логин: ${login}`,
+    `Пароль: ${password}`,
+    '',
+    'Сохраните эти данные. Ими можно войти вручную в приложении.',
+].join('\n');
+
 class AccountService {
     async register({params}) {
         const phone = normalizePhone(params.phone);
@@ -335,7 +346,7 @@ class AccountService {
         });
 
         if (existingAccount) {
-            const accountForSession = telegramContact && existingAccount.telegram !== telegramContact
+            let accountForSession = telegramContact && existingAccount.telegram !== telegramContact
                 ? await Story.dbAdapter.execQuery({
                     queryName: updateTelegramContact,
                     params: {
@@ -347,6 +358,18 @@ class AccountService {
                     },
                 })
                 : existingAccount;
+            let credentialsSent = Boolean(accountForSession.telegramCredentialsSentAt);
+
+            if (!credentialsSent) {
+                const issued = await this.issueTelegramCredentials({
+                    account: accountForSession,
+                    telegramUserId,
+                    telegramContact,
+                });
+                accountForSession = issued.account;
+                credentialsSent = issued.credentialsSent;
+            }
+
             const sessionToken = createSessionToken();
             const session = await Story.dbAdapter.execQuery({
                 queryName: createSession,
@@ -364,7 +387,7 @@ class AccountService {
                 expiresAt: session.expiresAt,
                 account: accountForSession,
                 isNewAccount: false,
-                credentialsSent: false,
+                credentialsSent,
             };
         }
 
@@ -403,6 +426,14 @@ class AccountService {
             throw error;
         }
 
+        const issued = await this.issueTelegramCredentials({
+            account,
+            telegramUserId,
+            telegramContact,
+        });
+        account = issued.account;
+        const credentialsSent = issued.credentialsSent;
+
         const sessionToken = createSessionToken();
         const session = await Story.dbAdapter.execQuery({
             queryName: createSession,
@@ -415,29 +446,6 @@ class AccountService {
             },
         });
 
-        const loginLabel = phone || account.login;
-        let credentialsSent = false;
-        if (loginLabel) {
-            const message = [
-                'Ваш аккаунт в IRCOM готов.',
-                '',
-                `Логин: ${loginLabel}`,
-                `Пароль: ${generatedPassword}`,
-                '',
-                'Сохраните эти данные. Ими можно войти вручную в приложении.',
-            ].join('\n');
-
-            try {
-                await sendTelegramMessage({
-                    chatId: telegramUserId,
-                    text: message,
-                });
-                credentialsSent = true;
-            } catch (error) {
-                Story.logger && Story.logger.error && Story.logger.error(error);
-            }
-        }
-
         return {
             sessionToken: session.sessionToken,
             expiresAt: session.expiresAt,
@@ -445,6 +453,64 @@ class AccountService {
             isNewAccount: true,
             credentialsSent,
         };
+    }
+
+    async issueTelegramCredentials({account, telegramUserId, telegramContact}) {
+        const loginLabel = account?.phone || account?.login;
+        if (!account?.accountId || !loginLabel) {
+            return {
+                account,
+                credentialsSent: false,
+            };
+        }
+
+        const generatedPassword = createMemorablePassword();
+        const passwordSalt = createSalt();
+        const passwordHash = await hashPassword(generatedPassword, passwordSalt);
+
+        const accountWithFreshPassword = await Story.dbAdapter.execQuery({
+            queryName: setTelegramCredentials,
+            params: {
+                accountId: account.accountId,
+                passwordHash,
+                passwordSalt,
+                telegram: telegramContact,
+            },
+            options: {
+                singularRow: true,
+            },
+        });
+
+        try {
+            await sendTelegramMessage({
+                chatId: telegramUserId,
+                text: buildTelegramCredentialsMessage({
+                    login: loginLabel,
+                    password: generatedPassword,
+                }),
+            });
+
+            const markedAccount = await Story.dbAdapter.execQuery({
+                queryName: markTelegramCredentialsSent,
+                params: {
+                    accountId: account.accountId,
+                },
+                options: {
+                    singularRow: true,
+                },
+            });
+
+            return {
+                account: markedAccount,
+                credentialsSent: true,
+            };
+        } catch (error) {
+            Story.logger && Story.logger.error && Story.logger.error(error);
+            return {
+                account: accountWithFreshPassword,
+                credentialsSent: false,
+            };
+        }
     }
 
     getSession({params}) {
