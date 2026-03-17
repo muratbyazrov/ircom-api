@@ -194,7 +194,7 @@ module.exports = {
             ,sl.telegram
             ,sl.real_estate_type AS "realEstateType"
             ,sl.photos
-            ,sl.created_at AS "createdAt"
+            ,COALESCE(lai.message_date, sl.created_at) AS "createdAt"
             ,CASE
                 WHEN lai.listing_id IS NULL THEN NULL
                 ELSE jsonb_build_object(
@@ -299,7 +299,7 @@ module.exports = {
             ,ul.telegram
             ,ul."realEstateType"
             ,ul.photos
-            ,ul."createdAt"
+            ,COALESCE(lai.message_date, ul."createdAt") AS "createdAt"
             ,ul."updatedAt"
             ,CASE
                 WHEN lai.listing_id IS NULL THEN NULL
@@ -327,7 +327,7 @@ module.exports = {
             ,l.price
             ,l.real_estate_type AS "realEstateType"
             ,l.photos
-            ,l.created_at AS "createdAt"
+            ,COALESCE(lai.message_date, l.created_at) AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
             ,CASE
@@ -372,7 +372,7 @@ module.exports = {
         ORDER BY
             CASE WHEN :sortBy = 'price_asc' THEN l.price END ASC,
             CASE WHEN :sortBy = 'price_desc' THEN l.price END DESC,
-            CASE WHEN :sortBy = 'date_desc' THEN l.created_at END DESC,
+            CASE WHEN :sortBy = 'date_desc' THEN COALESCE(lai.message_date, l.created_at) END DESC,
             l.listing_id DESC
         LIMIT :limit
         OFFSET :offset;`,
@@ -388,7 +388,7 @@ module.exports = {
             ,l.price
             ,l.real_estate_type AS "realEstateType"
             ,l.photos
-            ,l.created_at AS "createdAt"
+            ,COALESCE(lai.message_date, l.created_at) AS "createdAt"
             ,a.account_id AS "accountId"
             ,a.name AS "accountName"
             ,CASE
@@ -451,7 +451,7 @@ module.exports = {
             END AS telegram
             ,l.real_estate_type AS "realEstateType"
             ,l.photos
-            ,l.created_at AS "createdAt"
+            ,COALESCE(lai.message_date, l.created_at) AS "createdAt"
             ,l.is_active AS "isActive"
             ,CASE
                 WHEN lai.listing_id IS NULL THEN NULL
@@ -476,7 +476,7 @@ module.exports = {
         ORDER BY
             CASE WHEN :sortBy = 'price_asc' THEN l.price END ASC,
             CASE WHEN :sortBy = 'price_desc' THEN l.price END DESC,
-            CASE WHEN :sortBy = 'date_desc' THEN l.created_at END DESC,
+            CASE WHEN :sortBy = 'date_desc' THEN COALESCE(lai.message_date, l.created_at) END DESC,
             l.listing_id DESC
         LIMIT :limit
         OFFSET :offset;`,
