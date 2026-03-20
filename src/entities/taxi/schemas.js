@@ -48,6 +48,24 @@ const taxiDateTime = {
     maxLength: 64,
 };
 
+const taxiImportMeta = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['source', 'msgId', 'date'],
+    properties: {
+        source: {type: 'string', minLength: 1, maxLength: 128},
+        msgId: {type: 'integer', minimum: 1},
+        date: {type: 'string', minLength: 1, maxLength: 64},
+        permalink: {type: 'string', minLength: 1, maxLength: 2048},
+        contentHash: {type: 'string', minLength: 1, maxLength: 128},
+        photoObjectKeys: {
+            type: 'array',
+            maxItems: 20,
+            items: {type: 'string', minLength: 1, maxLength: 512},
+        },
+    },
+};
+
 const createTaxiOfferSchema = {
     id: 'createTaxiOfferSchema',
     additionalProperties: false,
@@ -92,6 +110,7 @@ const createTaxiOfferSchema = {
             maxItems: 10,
             items: taxiPhoto,
         },
+        importMeta: taxiImportMeta,
     },
 };
 
