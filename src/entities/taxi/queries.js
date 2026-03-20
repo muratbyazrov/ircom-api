@@ -1,62 +1,204 @@
 module.exports = {
     createTaxiOffer: `
-        INSERT INTO taxi_offers (
-             owner_account_id
-            ,direction
-            ,route_direction
-            ,from_place
-            ,to_place
-            ,route_text
-            ,vehicle
-            ,description
-            ,price
-            ,phone
-            ,whatsapp
-            ,telegram
-            ,departure_at
-            ,seats_total
-            ,seats_free
-            ,car_photos
+        WITH existing_import AS (
+            SELECT
+                tai.taxi_offer_id
+            FROM
+                taxi_aggregator_imports AS tai
+            WHERE
+                :importSource::text IS NOT NULL
+                AND :importMsgId::bigint IS NOT NULL
+                AND tai.source = :importSource
+                AND tai.msg_id = :importMsgId
+            LIMIT 1
+        ),
+        updated_taxi_offer AS (
+            UPDATE taxi_offers AS t
+            SET
+                 owner_account_id = :accountId
+                ,direction = :direction
+                ,route_direction = :routeDirection
+                ,from_place = :fromPlace
+                ,to_place = :toPlace
+                ,route_text = :routeText
+                ,vehicle = :vehicle
+                ,description = :description
+                ,price = :price
+                ,phone = :phone
+                ,whatsapp = :whatsapp
+                ,telegram = :telegram
+                ,departure_at = :departureAt
+                ,seats_total = :seatsTotal
+                ,seats_free = :seatsFree
+                ,car_photos = COALESCE(:carPhotos, '[]'::jsonb)
+                ,updated_at = NOW()
+            FROM
+                existing_import AS ei
+            WHERE
+                t.taxi_offer_id = ei.taxi_offer_id
+            RETURNING
+                 t.taxi_offer_id
+                ,t.owner_account_id
+                ,t.direction
+                ,t.route_direction
+                ,t.from_place
+                ,t.to_place
+                ,t.route_text
+                ,t.vehicle
+                ,t.description
+                ,t.price
+                ,t.phone
+                ,t.whatsapp
+                ,t.telegram
+                ,t.departure_at
+                ,t.seats_total
+                ,t.seats_free
+                ,t.car_photos
+                ,t.rating
+                ,t.reviews_count
+                ,t.created_at
+        ),
+        inserted_taxi_offer AS (
+            INSERT INTO taxi_offers (
+                 owner_account_id
+                ,direction
+                ,route_direction
+                ,from_place
+                ,to_place
+                ,route_text
+                ,vehicle
+                ,description
+                ,price
+                ,phone
+                ,whatsapp
+                ,telegram
+                ,departure_at
+                ,seats_total
+                ,seats_free
+                ,car_photos
+            )
+            SELECT
+                 :accountId
+                ,:direction
+                ,:routeDirection
+                ,:fromPlace
+                ,:toPlace
+                ,:routeText
+                ,:vehicle
+                ,:description
+                ,:price
+                ,:phone
+                ,:whatsapp
+                ,:telegram
+                ,:departureAt
+                ,:seatsTotal
+                ,:seatsFree
+                ,COALESCE(:carPhotos, '[]'::jsonb)
+            WHERE
+                NOT EXISTS (SELECT 1 FROM existing_import)
+            RETURNING
+                 taxi_offer_id
+                ,owner_account_id
+                ,direction
+                ,route_direction
+                ,from_place
+                ,to_place
+                ,route_text
+                ,vehicle
+                ,description
+                ,price
+                ,phone
+                ,whatsapp
+                ,telegram
+                ,departure_at
+                ,seats_total
+                ,seats_free
+                ,car_photos
+                ,rating
+                ,reviews_count
+                ,created_at
+        ),
+        saved_taxi_offer AS (
+            SELECT * FROM updated_taxi_offer
+            UNION ALL
+            SELECT * FROM inserted_taxi_offer
+        ),
+        updated_import AS (
+            UPDATE taxi_aggregator_imports AS tai
+            SET
+                 message_date = :importDate::timestamptz
+                ,permalink = :importPermalink
+                ,content_hash = :importContentHash
+                ,photo_object_keys = COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
+                ,updated_at = NOW()
+            FROM
+                existing_import AS ei
+            WHERE
+                tai.taxi_offer_id = ei.taxi_offer_id
+            RETURNING tai.taxi_offer_id
+        ),
+        inserted_import AS (
+            INSERT INTO taxi_aggregator_imports (
+                 taxi_offer_id
+                ,source
+                ,msg_id
+                ,message_date
+                ,permalink
+                ,content_hash
+                ,photo_object_keys
+            )
+            SELECT
+                 s.taxi_offer_id
+                ,:importSource
+                ,:importMsgId
+                ,:importDate::timestamptz
+                ,:importPermalink
+                ,:importContentHash
+                ,COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
+            FROM
+                saved_taxi_offer AS s
+            WHERE
+                :importSource::text IS NOT NULL
+                AND :importMsgId::bigint IS NOT NULL
+                AND :importDate::timestamptz IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM existing_import)
+            RETURNING taxi_offer_id
         )
-        VALUES (
-             :accountId
-            ,:direction
-            ,:routeDirection
-            ,:fromPlace
-            ,:toPlace
-            ,:routeText
-            ,:vehicle
-            ,:description
-            ,:price
-            ,:phone
-            ,:whatsapp
-            ,:telegram
-            ,:departureAt
-            ,:seatsTotal
-            ,:seatsFree
-            ,COALESCE(:carPhotos, '[]'::jsonb)
-        )
-        RETURNING
-             taxi_offer_id AS "taxiOfferId"
-            ,owner_account_id AS "accountId"
-            ,direction
-            ,route_direction AS "routeDirection"
-            ,from_place AS "fromPlace"
-            ,to_place AS "toPlace"
-            ,route_text AS "routeText"
-            ,vehicle
-            ,description
-            ,price
-            ,phone
-            ,whatsapp
-            ,telegram
-            ,departure_at AS "departureAt"
-            ,seats_total AS "seatsTotal"
-            ,seats_free AS "seatsFree"
-            ,car_photos AS "carPhotos"
-            ,rating
-            ,reviews_count AS "reviewsCount"
-            ,created_at AS "createdAt";`,
+        SELECT
+             s.taxi_offer_id AS "taxiOfferId"
+            ,s.owner_account_id AS "accountId"
+            ,s.direction
+            ,s.route_direction AS "routeDirection"
+            ,s.from_place AS "fromPlace"
+            ,s.to_place AS "toPlace"
+            ,s.route_text AS "routeText"
+            ,s.vehicle
+            ,s.description
+            ,s.price
+            ,s.phone
+            ,s.whatsapp
+            ,s.telegram
+            ,s.departure_at AS "departureAt"
+            ,s.seats_total AS "seatsTotal"
+            ,s.seats_free AS "seatsFree"
+            ,s.car_photos AS "carPhotos"
+            ,s.rating
+            ,s.reviews_count AS "reviewsCount"
+            ,COALESCE(tai.message_date, s.created_at) AS "createdAt"
+            ,CASE
+                WHEN tai.taxi_offer_id IS NULL THEN NULL
+                ELSE jsonb_build_object(
+                     'source', tai.source
+                    ,'msgId', tai.msg_id
+                    ,'date', tai.message_date
+                    ,'permalink', tai.permalink
+                    ,'contentHash', tai.content_hash
+                    ,'photoObjectKeys', tai.photo_object_keys
+                )
+            END AS "importMeta"
+        FROM
+            saved_taxi_offer AS s
+            LEFT JOIN taxi_aggregator_imports AS tai ON tai.taxi_offer_id = s.taxi_offer_id;`,
 
     updateTaxiOffer: `
         UPDATE taxi_offers

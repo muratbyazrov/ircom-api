@@ -260,6 +260,33 @@ const resolveRouteDirectionFromPlaces = (fromPlace, toPlace) => {
     return ROUTE_DIRECTION_BY_PLACES[`${fromPlace}|${toPlace}`] || null;
 };
 
+const normalizeImportMeta = params => {
+    const importMeta = params.importMeta || null;
+    if (!importMeta) {
+        return {
+            importSource: null,
+            importMsgId: null,
+            importDate: null,
+            importPermalink: null,
+            importContentHash: null,
+            importPhotoObjectKeys: null,
+        };
+    }
+
+    return {
+        importSource: importMeta.source || null,
+        importMsgId: Number.isInteger(importMeta.msgId) ?
+            importMeta.msgId :
+            (typeof importMeta.msgId === 'string' ? Number.parseInt(importMeta.msgId, 10) || null : null),
+        importDate: importMeta.date || null,
+        importPermalink: importMeta.permalink || null,
+        importContentHash: importMeta.contentHash || null,
+        importPhotoObjectKeys: JSON.stringify(
+            Array.isArray(importMeta.photoObjectKeys) ? importMeta.photoObjectKeys : [],
+        ),
+    };
+};
+
 const normalizeCarPhotos = params => {
     if (!Object.prototype.hasOwnProperty.call(params, 'carPhotos') || params.carPhotos === null) {
         return null;
@@ -321,7 +348,10 @@ const normalizeDepartureFrom = value => {
 
 class TaxiService {
     createTaxiOffer({params}) {
-        const queryParams = normalizeTaxiParams(params);
+        const queryParams = {
+            ...normalizeTaxiParams(params),
+            ...normalizeImportMeta(params),
+        };
 
         return Story.dbAdapter.execQuery({
             queryName: createTaxiOffer,
