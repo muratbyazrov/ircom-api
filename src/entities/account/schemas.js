@@ -1,4 +1,47 @@
-const {Story: {validator: {schemaItems: {number1, string1, nullOrString}}}} = require('story-system');
+const {Story: {validator: {schemaItems: {number1, string1}}}} = require('story-system');
+
+const ACCOUNT_NAME_MIN = 2;
+const ACCOUNT_NAME_MAX = 60;
+const ACCOUNT_PHONE_MIN = 6;
+const ACCOUNT_PHONE_MAX = 20;
+const ACCOUNT_PASSWORD_MIN = 6;
+const ACCOUNT_PASSWORD_MAX = 128;
+const ACCOUNT_LOGIN_MIN = 3;
+const ACCOUNT_LOGIN_MAX = 40;
+const ACCOUNT_TELEGRAM_MAX = 64;
+
+const nullablePhone = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'string',
+            minLength: ACCOUNT_PHONE_MIN,
+            maxLength: ACCOUNT_PHONE_MAX,
+        },
+    ],
+};
+
+const nullableWhatsapp = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'string',
+            minLength: 1,
+            maxLength: ACCOUNT_PHONE_MAX,
+        },
+    ],
+};
+
+const nullableTelegram = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'string',
+            minLength: 1,
+            maxLength: ACCOUNT_TELEGRAM_MAX,
+        },
+    ],
+};
 
 const registerSchema = {
     id: 'registerSchema',
@@ -7,21 +50,21 @@ const registerSchema = {
     properties: {
         name: {
             type: 'string',
-            minLength: 2,
-            maxLength: 80,
+            minLength: ACCOUNT_NAME_MIN,
+            maxLength: ACCOUNT_NAME_MAX,
         },
         phone: {
             type: 'string',
-            minLength: 6,
-            maxLength: 20,
+            minLength: ACCOUNT_PHONE_MIN,
+            maxLength: ACCOUNT_PHONE_MAX,
         },
         password: {
             type: 'string',
-            minLength: 6,
-            maxLength: 128,
+            minLength: ACCOUNT_PASSWORD_MIN,
+            maxLength: ACCOUNT_PASSWORD_MAX,
         },
-        whatsapp: nullOrString,
-        telegram: nullOrString,
+        whatsapp: nullableWhatsapp,
+        telegram: nullableTelegram,
     },
 };
 
@@ -32,18 +75,18 @@ const signInSchema = {
     properties: {
         phone: {
             type: 'string',
-            minLength: 6,
-            maxLength: 20,
+            minLength: ACCOUNT_PHONE_MIN,
+            maxLength: ACCOUNT_PHONE_MAX,
         },
         login: {
             type: 'string',
-            minLength: 3,
-            maxLength: 64,
+            minLength: ACCOUNT_LOGIN_MIN,
+            maxLength: ACCOUNT_LOGIN_MAX,
         },
         password: {
             type: 'string',
-            minLength: 6,
-            maxLength: 128,
+            minLength: ACCOUNT_PASSWORD_MIN,
+            maxLength: ACCOUNT_PASSWORD_MAX,
         },
     },
 };
@@ -54,7 +97,7 @@ const telegramAuthSchema = {
     required: ['initData'],
     properties: {
         initData: string1,
-        phone: nullOrString,
+        phone: nullablePhone,
     },
 };
 
@@ -82,10 +125,14 @@ const createOrUpdateAccountSchema = {
     required: ['accountId', 'name'],
     properties: {
         accountId: number1,
-        name: string1,
-        phone: nullOrString,
-        whatsapp: nullOrString,
-        telegram: nullOrString,
+        name: {
+            type: 'string',
+            minLength: ACCOUNT_NAME_MIN,
+            maxLength: ACCOUNT_NAME_MAX,
+        },
+        phone: nullablePhone,
+        whatsapp: nullableWhatsapp,
+        telegram: nullableTelegram,
     },
 };
 

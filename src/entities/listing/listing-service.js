@@ -10,6 +10,9 @@ const {
     getExpiredImportedListings,
     deleteImportedListing,
 } = require('./queries.js');
+const LISTING_PHONE_MAX = 20;
+const LISTING_TELEGRAM_MAX = 64;
+const LISTING_TITLE_MAX = 50;
 
 const normalizePhotos = params => {
     if (!Object.prototype.hasOwnProperty.call(params, 'photos') || params.photos === null) {
@@ -32,9 +35,15 @@ const normalizeOptionalInt = value => {
     return null;
 };
 
-const normalizeOptionalText = value => {
+const normalizeOptionalText = (value, maxLength = null) => {
     const text = String(value || '').trim();
-    return text || null;
+    if (!text) {
+        return null;
+    }
+    if (!Number.isInteger(maxLength) || maxLength < 1) {
+        return text;
+    }
+    return text.slice(0, maxLength);
 };
 
 const normalizeImportMeta = params => {
@@ -90,8 +99,9 @@ class ListingService {
         const queryParams = {
             ...params,
             categoryId,
-            phone: normalizeOptionalText(params.phone),
-            telegram: normalizeOptionalText(params.telegram),
+            title: normalizeOptionalText(params.title, LISTING_TITLE_MAX),
+            phone: normalizeOptionalText(params.phone, LISTING_PHONE_MAX),
+            telegram: normalizeOptionalText(params.telegram, LISTING_TELEGRAM_MAX),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
             ...normalizeImportMeta(params),
@@ -111,8 +121,9 @@ class ListingService {
         const queryParams = {
             ...params,
             categoryId,
-            phone: normalizeOptionalText(params.phone),
-            telegram: normalizeOptionalText(params.telegram),
+            title: normalizeOptionalText(params.title, LISTING_TITLE_MAX),
+            phone: normalizeOptionalText(params.phone, LISTING_PHONE_MAX),
+            telegram: normalizeOptionalText(params.telegram, LISTING_TELEGRAM_MAX),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
         };

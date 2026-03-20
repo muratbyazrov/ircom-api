@@ -25,8 +25,13 @@ const hashPassword = async (password, salt) => {
 const createSalt = () => crypto.randomBytes(16).toString('hex');
 const createSessionToken = () => crypto.randomBytes(32).toString('hex');
 const isHexHash = value => typeof value === 'string' && /^[a-f0-9]+$/i.test(value) && value.length % 2 === 0;
-const TELEGRAM_LOGIN_PATTERN = /^[a-z0-9_]{3,64}$/;
+const ACCOUNT_LOGIN_MIN = 3;
+const ACCOUNT_LOGIN_MAX = 40;
+const TELEGRAM_LOGIN_PATTERN = new RegExp(`^[a-z0-9_]{${ACCOUNT_LOGIN_MIN},${ACCOUNT_LOGIN_MAX}}$`);
 const TELEGRAM_USERNAME_AS_LOGIN_MIN_LENGTH = 4;
+const ACCOUNT_NAME_MAX = 60;
+const ACCOUNT_PHONE_MAX = 20;
+const ACCOUNT_TELEGRAM_MAX = 64;
 const safeCompareHexHashes = (left, right) => {
     if (!isHexHash(left) || !isHexHash(right)) {
         return false;
@@ -43,7 +48,21 @@ const normalizePhone = value => {
     }
 
     // Store phone in a single canonical representation without spaces.
-    return value.replace(/\s+/g, '').trim();
+    return value.replace(/\s+/g, '').trim().slice(0, ACCOUNT_PHONE_MAX);
+};
+
+const normalizeOptionalText = (value, maxLength = null) => {
+    if (typeof value !== 'string') {
+        return null;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return null;
+    }
+    if (!Number.isInteger(maxLength) || maxLength < 1) {
+        return trimmed;
+    }
+    return trimmed.slice(0, maxLength);
 };
 
 const normalizeLogin = value => {
@@ -51,7 +70,7 @@ const normalizeLogin = value => {
         return '';
     }
 
-    return value.trim().replace(/^@+/, '').toLowerCase();
+    return value.trim().replace(/^@+/, '').toLowerCase().slice(0, ACCOUNT_LOGIN_MAX);
 };
 
 const buildAccountName = user => {
@@ -59,12 +78,12 @@ const buildAccountName = user => {
         .map(value => String(value || '').trim())
         .filter(Boolean);
     if (parts.length) {
-        return parts.join(' ').slice(0, 80);
+        return parts.join(' ').slice(0, ACCOUNT_NAME_MAX);
     }
 
     const username = normalizeLogin(user?.username);
     if (username) {
-        return username.slice(0, 80);
+        return username.slice(0, ACCOUNT_NAME_MAX);
     }
 
     return 'Пользователь Telegram';
@@ -232,8 +251,8 @@ class AccountService {
                     phone,
                     passwordHash,
                     passwordSalt,
-                    whatsapp: params.whatsapp || null,
-                    telegram: params.telegram || null,
+                    whatsapp: normalizeOptionalText(params.whatsapp, ACCOUNT_PHONE_MAX),
+                    telegram: normalizeOptionalText(params.telegram, ACCOUNT_TELEGRAM_MAX),
                     telegramUserId: null,
                 },
                 options: {
@@ -536,9 +555,16 @@ class AccountService {
     createOrUpdateAccount({params}) {
         const queryParams = {
             ...params,
+            name: normalizeOptionalText(params.name, ACCOUNT_NAME_MAX) || params.name,
             phone: params.phone === null || typeof params.phone === 'undefined' ?
                 null :
                 normalizePhone(params.phone),
+            whatsapp: params.whatsapp === null || typeof params.whatsapp === 'undefined' ?
+                null :
+                normalizeOptionalText(params.whatsapp, ACCOUNT_PHONE_MAX),
+            telegram: params.telegram === null || typeof params.telegram === 'undefined' ?
+                null :
+                normalizeOptionalText(params.telegram, ACCOUNT_TELEGRAM_MAX),
         };
 
         return Story.dbAdapter.execQuery({

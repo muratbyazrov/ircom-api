@@ -1,47 +1,91 @@
-const {Story: {validator: {schemaItems: {number1, string1, limit}}}} = require('story-system');
+const {Story: {validator: {schemaItems: {number1, limit}}}} = require('story-system');
+
+const TAXI_VEHICLE_MAX = 40;
+const TAXI_CONTACT_MAX = 20;
+const TAXI_TELEGRAM_MAX = 64;
+const TAXI_PRICE_MAX = 50000000;
+const TAXI_SEATS_MAX = 99;
 
 const taxiPhoto = {
     type: 'string',
     minLength: 1,
     maxLength: 2048,
 };
+const taxiRouteDirection = {enum: [1, 2]};
+const taxiPlace = {
+    type: 'string',
+    minLength: 1,
+    maxLength: 60,
+};
+const taxiRouteText = {
+    type: 'string',
+    minLength: 1,
+    maxLength: 160,
+};
+const taxiVehicle = {
+    type: 'string',
+    minLength: 1,
+    maxLength: TAXI_VEHICLE_MAX,
+};
+const taxiContact = {
+    type: 'string',
+    minLength: 1,
+    maxLength: TAXI_CONTACT_MAX,
+};
+const taxiTelegram = {
+    type: 'string',
+    minLength: 1,
+    maxLength: TAXI_TELEGRAM_MAX,
+};
+const taxiLegacyDisplayName = {
+    type: 'string',
+    minLength: 1,
+    maxLength: 160,
+};
+const taxiDateTime = {
+    type: 'string',
+    minLength: 10,
+    maxLength: 64,
+};
 
 const createTaxiOfferSchema = {
     id: 'createTaxiOfferSchema',
     additionalProperties: false,
-    required: ['accountId', 'direction', 'displayName', 'phone', 'price'],
+    required: ['accountId', 'direction', 'phone', 'price'],
     properties: {
         accountId: number1,
         direction: {enum: [1, 2, 3]},
-        displayName: {
-            type: 'string',
-            minLength: 2,
-            maxLength: 60,
-        },
         description: {
             type: 'string',
             minLength: 0,
             maxLength: 2000,
         },
-        phone: string1,
-        whatsapp: string1,
-        telegram: string1,
+        phone: taxiContact,
+        whatsapp: taxiContact,
+        telegram: taxiTelegram,
+        // Legacy compatibility for cached clients; ignored by the service layer.
+        displayName: taxiLegacyDisplayName,
+        name: taxiLegacyDisplayName,
         price: {
             type: 'number',
             minimum: 1,
+            maximum: TAXI_PRICE_MAX,
         },
-        departureAt: {
-            type: 'string',
-            minLength: 10,
-            maxLength: 64,
-        },
+        departureAt: taxiDateTime,
+        routeDirection: taxiRouteDirection,
+        fromPlace: taxiPlace,
+        toPlace: taxiPlace,
+        routeText: taxiRouteText,
+        vehicle: taxiVehicle,
         seatsTotal: {
             type: 'integer',
             minimum: 1,
+            maximum: TAXI_SEATS_MAX,
         },
         seatsFree: {
             type: 'integer',
             minimum: 0,
+            maximum: TAXI_SEATS_MAX,
         },
         carPhotos: {
             type: 'array',
@@ -54,40 +98,42 @@ const createTaxiOfferSchema = {
 const updateTaxiOfferSchema = {
     id: 'updateTaxiOfferSchema',
     additionalProperties: false,
-    required: ['accountId', 'taxiOfferId', 'direction', 'displayName', 'phone', 'price'],
+    required: ['accountId', 'taxiOfferId', 'direction', 'phone', 'price'],
     properties: {
         accountId: number1,
         taxiOfferId: number1,
         direction: {enum: [1, 2, 3]},
-        displayName: {
-            type: 'string',
-            minLength: 2,
-            maxLength: 60,
-        },
         description: {
             type: 'string',
             minLength: 0,
             maxLength: 2000,
         },
-        phone: string1,
-        whatsapp: string1,
-        telegram: string1,
+        phone: taxiContact,
+        whatsapp: taxiContact,
+        telegram: taxiTelegram,
+        // Legacy compatibility for cached clients; ignored by the service layer.
+        displayName: taxiLegacyDisplayName,
+        name: taxiLegacyDisplayName,
         price: {
             type: 'number',
             minimum: 1,
+            maximum: TAXI_PRICE_MAX,
         },
-        departureAt: {
-            type: 'string',
-            minLength: 10,
-            maxLength: 64,
-        },
+        departureAt: taxiDateTime,
+        routeDirection: taxiRouteDirection,
+        fromPlace: taxiPlace,
+        toPlace: taxiPlace,
+        routeText: taxiRouteText,
+        vehicle: taxiVehicle,
         seatsTotal: {
             type: 'integer',
             minimum: 1,
+            maximum: TAXI_SEATS_MAX,
         },
         seatsFree: {
             type: 'integer',
             minimum: 0,
+            maximum: TAXI_SEATS_MAX,
         },
         carPhotos: {
             type: 'array',
@@ -114,8 +160,10 @@ const getTaxiOffersSchema = {
     properties: {
         direction: {enum: [1, 2, 3]},
         accountId: number1,
+        routeDirection: taxiRouteDirection,
+        departureFrom: taxiDateTime,
         onlyFavorites: {type: 'boolean'},
-        sortBy: {enum: ['price_asc', 'price_desc', 'rating_desc', 'date_desc']},
+        sortBy: {enum: ['price_asc', 'price_desc', 'rating_desc', 'date_desc', 'departure_asc']},
         limit,
         offset: {
             type: 'integer',
@@ -141,7 +189,8 @@ const getMyTaxiOffersSchema = {
     properties: {
         accountId: number1,
         direction: {enum: [1, 2, 3]},
-        sortBy: {enum: ['price_asc', 'price_desc', 'rating_desc', 'date_desc']},
+        routeDirection: taxiRouteDirection,
+        sortBy: {enum: ['price_asc', 'price_desc', 'rating_desc', 'date_desc', 'departure_asc']},
         limit,
         offset: {
             type: 'integer',

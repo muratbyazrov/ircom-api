@@ -3,7 +3,11 @@ module.exports = {
         INSERT INTO taxi_offers (
              owner_account_id
             ,direction
-            ,display_name
+            ,route_direction
+            ,from_place
+            ,to_place
+            ,route_text
+            ,vehicle
             ,description
             ,price
             ,phone
@@ -17,7 +21,11 @@ module.exports = {
         VALUES (
              :accountId
             ,:direction
-            ,:displayName
+            ,:routeDirection
+            ,:fromPlace
+            ,:toPlace
+            ,:routeText
+            ,:vehicle
             ,:description
             ,:price
             ,:phone
@@ -32,7 +40,11 @@ module.exports = {
              taxi_offer_id AS "taxiOfferId"
             ,owner_account_id AS "accountId"
             ,direction
-            ,display_name AS "displayName"
+            ,route_direction AS "routeDirection"
+            ,from_place AS "fromPlace"
+            ,to_place AS "toPlace"
+            ,route_text AS "routeText"
+            ,vehicle
             ,description
             ,price
             ,phone
@@ -50,7 +62,11 @@ module.exports = {
         UPDATE taxi_offers
         SET
              direction = :direction
-            ,display_name = :displayName
+            ,route_direction = :routeDirection
+            ,from_place = :fromPlace
+            ,to_place = :toPlace
+            ,route_text = :routeText
+            ,vehicle = :vehicle
             ,description = :description
             ,price = :price
             ,phone = :phone
@@ -69,7 +85,11 @@ module.exports = {
              taxi_offer_id AS "taxiOfferId"
             ,owner_account_id AS "accountId"
             ,direction
-            ,display_name AS "displayName"
+            ,route_direction AS "routeDirection"
+            ,from_place AS "fromPlace"
+            ,to_place AS "toPlace"
+            ,route_text AS "routeText"
+            ,vehicle
             ,description
             ,price
             ,phone
@@ -101,7 +121,11 @@ module.exports = {
         SELECT
              t.taxi_offer_id AS "taxiOfferId"
             ,t.direction
-            ,t.display_name AS "displayName"
+            ,t.route_direction AS "routeDirection"
+            ,t.from_place AS "fromPlace"
+            ,t.to_place AS "toPlace"
+            ,t.route_text AS "routeText"
+            ,t.vehicle
             ,t.description
             ,t.price
             ,t.phone
@@ -123,11 +147,14 @@ module.exports = {
         WHERE
             t.is_active = TRUE
             AND t.direction = :direction
+            /*routeDirection: AND t.route_direction = :routeDirection */
+            /*departureFrom: AND t.departure_at IS NOT NULL AND t.departure_at >= :departureFrom */
             /*onlyFavorites: AND tf.account_id = :accountId */
         ORDER BY
             CASE WHEN :sortBy = 'price_asc' THEN t.price END ASC,
             CASE WHEN :sortBy = 'price_desc' THEN t.price END DESC,
             CASE WHEN :sortBy = 'rating_desc' THEN t.rating END DESC,
+            CASE WHEN :sortBy = 'departure_asc' THEN t.departure_at END ASC,
             CASE WHEN :sortBy = 'date_desc' THEN t.created_at END DESC,
             t.taxi_offer_id DESC
         LIMIT :limit
@@ -138,7 +165,11 @@ module.exports = {
              t.taxi_offer_id AS "taxiOfferId"
             ,t.owner_account_id AS "accountId"
             ,t.direction
-            ,t.display_name AS "displayName"
+            ,t.route_direction AS "routeDirection"
+            ,t.from_place AS "fromPlace"
+            ,t.to_place AS "toPlace"
+            ,t.route_text AS "routeText"
+            ,t.vehicle
             ,t.description
             ,t.price
             ,t.phone
@@ -165,7 +196,11 @@ module.exports = {
         SELECT
              taxi_offer_id AS "taxiOfferId"
             ,direction
-            ,display_name AS "displayName"
+            ,route_direction AS "routeDirection"
+            ,from_place AS "fromPlace"
+            ,to_place AS "toPlace"
+            ,route_text AS "routeText"
+            ,vehicle
             ,description
             ,price
             ,phone
@@ -185,10 +220,12 @@ module.exports = {
             owner_account_id = :accountId
             AND is_active = TRUE
             /*direction: AND direction = :direction */
+            /*routeDirection: AND route_direction = :routeDirection */
         ORDER BY
             CASE WHEN :sortBy = 'price_asc' THEN price END ASC,
             CASE WHEN :sortBy = 'price_desc' THEN price END DESC,
             CASE WHEN :sortBy = 'rating_desc' THEN rating END DESC,
+            CASE WHEN :sortBy = 'departure_asc' THEN departure_at END ASC,
             CASE WHEN :sortBy = 'date_desc' THEN created_at END DESC,
             taxi_offer_id DESC
         LIMIT :limit

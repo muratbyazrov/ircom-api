@@ -11,14 +11,24 @@ const {
     getMenuItemById,
     toggleMenuItemFavorite,
 } = require('./queries.js');
+const FOOD_CONTACT_MAX = 20;
+const FOOD_TELEGRAM_MAX = 64;
+const DELIVERY_PRICE_MAX = 1000000;
+const DISH_TITLE_MAX = 40;
 
-const normalizeOptionalText = value => {
+const normalizeOptionalText = (value, maxLength = null) => {
     if (typeof value !== 'string') {
         return null;
     }
 
     const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
+    if (!trimmed.length) {
+        return null;
+    }
+    if (!Number.isInteger(maxLength) || maxLength < 1) {
+        return trimmed;
+    }
+    return trimmed.slice(0, maxLength);
 };
 
 const normalizeOptionalInt = value => {
@@ -282,7 +292,7 @@ class FoodService {
             pickFirstDefined(params, ['deliveryPrice', 'delivery_price']),
         );
         const deliveryPrice = resolvedDeliveryMode === 'paid' ?
-            (inputDeliveryPrice === null ? 0 : Math.max(0, inputDeliveryPrice)) :
+            (inputDeliveryPrice === null ? 0 : Math.min(DELIVERY_PRICE_MAX, Math.max(0, inputDeliveryPrice))) :
             (resolvedDeliveryMode === null ? null : 0);
 
         const queryParams = {
@@ -291,9 +301,9 @@ class FoodService {
             address: normalizeOptionalText(params.address),
             description: params.description || '',
             logoUrl: resolveRestaurantLogoUrl(params),
-            phone: normalizeOptionalText(params.phone),
-            whatsapp: normalizeOptionalText(params.whatsapp),
-            telegram: normalizeOptionalText(params.telegram),
+            phone: normalizeOptionalText(params.phone, FOOD_CONTACT_MAX),
+            whatsapp: normalizeOptionalText(params.whatsapp, FOOD_CONTACT_MAX),
+            telegram: normalizeOptionalText(params.telegram, FOOD_TELEGRAM_MAX),
             hasDelivery: resolvedHasDelivery,
             deliveryMode: resolvedDeliveryMode,
             deliveryPrice,
@@ -345,6 +355,7 @@ class FoodService {
             ...params,
             restaurantId: Number.isInteger(params.restaurantId) ? params.restaurantId : null,
             categoryId,
+            name: normalizeOptionalText(params.name, DISH_TITLE_MAX),
             photos: normalizePhotos(params),
         };
 
@@ -362,6 +373,7 @@ class FoodService {
         const queryParams = {
             ...params,
             categoryId,
+            name: normalizeOptionalText(params.name, DISH_TITLE_MAX),
             photos: normalizePhotos(params),
         };
 

@@ -1,5 +1,12 @@
 const {Story: {validator: {schemaItems: {number1, string1, limit}}}} = require('story-system');
 
+const FOOD_CONTACT_MAX = 20;
+const FOOD_TELEGRAM_MAX = 64;
+const FOOD_PRICE_MAX = 50000000;
+const DELIVERY_PRICE_MAX = 1000000;
+const RESTAURANT_NAME_MAX = 50;
+const DISH_TITLE_MAX = 40;
+
 const photoItem = {
     type: 'string',
     minLength: 1,
@@ -24,17 +31,30 @@ const intLikeValue = {
     ],
 };
 
-const nonNegativeNumberLikeValue = {
+const deliveryPriceValue = {
     anyOf: [
         {
             type: 'number',
             minimum: 0,
+            maximum: DELIVERY_PRICE_MAX,
         },
         {
             type: 'string',
-            pattern: '^[0-9]+(?:\\.[0-9]+)?$',
+            pattern: '^(?:1000000(?:\\.0{1,2})?|(?:0|[1-9][0-9]{0,5})(?:\\.[0-9]{1,2})?)$',
         },
     ],
+};
+
+const foodContact = {
+    type: 'string',
+    minLength: 1,
+    maxLength: FOOD_CONTACT_MAX,
+};
+
+const foodTelegram = {
+    type: 'string',
+    minLength: 1,
+    maxLength: FOOD_TELEGRAM_MAX,
 };
 
 const restaurantPayloadProperties = {
@@ -43,7 +63,7 @@ const restaurantPayloadProperties = {
     name: {
         type: 'string',
         minLength: 2,
-        maxLength: 100,
+        maxLength: RESTAURANT_NAME_MAX,
     },
     address: {
         type: 'string',
@@ -59,9 +79,9 @@ const restaurantPayloadProperties = {
     photoUrl: string1,
     logo: string1,
     photo: string1,
-    phone: string1,
-    whatsapp: string1,
-    telegram: string1,
+    phone: foodContact,
+    whatsapp: foodContact,
+    telegram: foodTelegram,
     hasDelivery: deliveryOptionValue,
     has_delivery: deliveryOptionValue,
     deliveryOption: deliveryOptionValue,
@@ -70,8 +90,8 @@ const restaurantPayloadProperties = {
     delivery: deliveryOptionValue,
     deliveryMode: {enum: ['none', 'free', 'paid']},
     delivery_mode: {enum: ['none', 'free', 'paid']},
-    deliveryPrice: nonNegativeNumberLikeValue,
-    delivery_price: nonNegativeNumberLikeValue,
+    deliveryPrice: deliveryPriceValue,
+    delivery_price: deliveryPriceValue,
 };
 
 const createRestaurantSchema = {
@@ -126,7 +146,7 @@ const createMenuItemSchema = {
         name: {
             type: 'string',
             minLength: 2,
-            maxLength: 100,
+            maxLength: DISH_TITLE_MAX,
         },
         description: {
             type: 'string',
@@ -136,6 +156,7 @@ const createMenuItemSchema = {
         price: {
             type: 'number',
             minimum: 1,
+            maximum: FOOD_PRICE_MAX,
         },
         isAvailable: {type: 'boolean'},
         photos: {
@@ -162,7 +183,7 @@ const updateMenuItemSchema = {
         name: {
             type: 'string',
             minLength: 2,
-            maxLength: 100,
+            maxLength: DISH_TITLE_MAX,
         },
         description: {
             type: 'string',
@@ -172,6 +193,7 @@ const updateMenuItemSchema = {
         price: {
             type: 'number',
             minimum: 1,
+            maximum: FOOD_PRICE_MAX,
         },
         isAvailable: {type: 'boolean'},
         photos: {

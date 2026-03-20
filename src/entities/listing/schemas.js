@@ -1,4 +1,32 @@
-const {Story: {validator: {schemaItems: {number1, string1, nullOrString, limit}}}} = require('story-system');
+const {Story: {validator: {schemaItems: {number1, string1, limit}}}} = require('story-system');
+
+const LISTING_CATEGORY_MAX = 80;
+const LISTING_TITLE_MAX = 50;
+const LISTING_PHONE_MAX = 20;
+const LISTING_TELEGRAM_MAX = 64;
+const LISTING_PRICE_MAX = 50000000;
+
+const nullablePhone = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'string',
+            minLength: 1,
+            maxLength: LISTING_PHONE_MAX,
+        },
+    ],
+};
+
+const nullableTelegram = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'string',
+            minLength: 1,
+            maxLength: LISTING_TELEGRAM_MAX,
+        },
+    ],
+};
 
 const listingPhoto = {
     type: 'string',
@@ -46,11 +74,15 @@ const createListingSchema = {
         accountId: number1,
         kind: {enum: [1, 2]},
         categoryId: number1,
-        category: string1,
+        category: {
+            type: 'string',
+            minLength: 1,
+            maxLength: LISTING_CATEGORY_MAX,
+        },
         title: {
             type: 'string',
             minLength: 3,
-            maxLength: 80,
+            maxLength: LISTING_TITLE_MAX,
         },
         description: {
             type: 'string',
@@ -60,9 +92,10 @@ const createListingSchema = {
         price: {
             type: 'number',
             minimum: 1,
+            maximum: LISTING_PRICE_MAX,
         },
-        phone: nullOrString,
-        telegram: nullOrString,
+        phone: nullablePhone,
+        telegram: nullableTelegram,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
@@ -86,11 +119,15 @@ const updateListingSchema = {
         listingId: number1,
         kind: {enum: [1, 2]},
         categoryId: number1,
-        category: string1,
+        category: {
+            type: 'string',
+            minLength: 1,
+            maxLength: LISTING_CATEGORY_MAX,
+        },
         title: {
             type: 'string',
             minLength: 3,
-            maxLength: 80,
+            maxLength: LISTING_TITLE_MAX,
         },
         description: {
             type: 'string',
@@ -100,9 +137,10 @@ const updateListingSchema = {
         price: {
             type: 'number',
             minimum: 1,
+            maximum: LISTING_PRICE_MAX,
         },
-        phone: nullOrString,
-        telegram: nullOrString,
+        phone: nullablePhone,
+        telegram: nullableTelegram,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
