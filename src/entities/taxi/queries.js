@@ -4,12 +4,34 @@ module.exports = {
             SELECT
                 tai.taxi_offer_id
             FROM
-                taxi_aggregator_imports AS tai
-            WHERE
-                :importSource::text IS NOT NULL
-                AND :importMsgId::bigint IS NOT NULL
-                AND tai.source = :importSource
-                AND tai.msg_id = :importMsgId
+                (
+                    SELECT
+                        1
+                    WHERE
+                        :importSource::text IS NULL
+                        OR :importMsgId::bigint IS NULL
+
+                    UNION ALL
+
+                    SELECT
+                        1
+                    FROM
+                        LATERAL (
+                            SELECT
+                                pg_advisory_xact_lock(
+                                    hashtext(:importSource),
+                                    hashtext(:importMsgId::text)
+                                )
+                            WHERE
+                                :importSource::text IS NOT NULL
+                                AND :importMsgId::bigint IS NOT NULL
+                        ) AS locked_import
+                ) AS import_guard
+                INNER JOIN taxi_aggregator_imports AS tai ON
+                    :importSource::text IS NOT NULL
+                    AND :importMsgId::bigint IS NOT NULL
+                    AND tai.source = :importSource
+                    AND tai.msg_id = :importMsgId
             LIMIT 1
         ),
         updated_taxi_offer AS (

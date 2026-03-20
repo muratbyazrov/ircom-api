@@ -42,12 +42,34 @@ module.exports = {
             SELECT
                 lai.listing_id
             FROM
-                listing_aggregator_imports AS lai
-            WHERE
-                :importSource::text IS NOT NULL
-                AND :importMsgId::bigint IS NOT NULL
-                AND lai.source = :importSource
-                AND lai.msg_id = :importMsgId
+                (
+                    SELECT
+                        1
+                    WHERE
+                        :importSource::text IS NULL
+                        OR :importMsgId::bigint IS NULL
+
+                    UNION ALL
+
+                    SELECT
+                        1
+                    FROM
+                        LATERAL (
+                            SELECT
+                                pg_advisory_xact_lock(
+                                    hashtext(:importSource),
+                                    hashtext(:importMsgId::text)
+                                )
+                            WHERE
+                                :importSource::text IS NOT NULL
+                                AND :importMsgId::bigint IS NOT NULL
+                        ) AS locked_import
+                ) AS import_guard
+                INNER JOIN listing_aggregator_imports AS lai ON
+                    :importSource::text IS NOT NULL
+                    AND :importMsgId::bigint IS NOT NULL
+                    AND lai.source = :importSource
+                    AND lai.msg_id = :importMsgId
             LIMIT 1
         ),
         updated_listing AS (
