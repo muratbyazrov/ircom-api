@@ -7,6 +7,7 @@ const {
     getTaxiOfferByIdSchema,
     getMyTaxiOffersSchema,
     toggleTaxiFavoriteSchema,
+    getImportedTaxiOffersForDedupSchema,
 } = require('./schemas.js');
 
 class TaxiController {
@@ -47,6 +48,11 @@ class TaxiController {
     toggleTaxiFavorite(data) {
         Story.validator.validate(data.params, toggleTaxiFavoriteSchema);
         return this.service.toggleTaxiFavorite(data);
+    }
+
+    getImportedTaxiOffersForDedup(data) {
+        Story.validator.validate(data.params, getImportedTaxiOffersForDedupSchema);
+        return this.service.getImportedTaxiOffersForDedup(data);
     }
 }
 

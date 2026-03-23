@@ -68,8 +68,23 @@ module.exports = {
                 INNER JOIN listing_aggregator_imports AS lai ON
                     :importSource::text IS NOT NULL
                     AND :importMsgId::bigint IS NOT NULL
-                    AND lai.source = :importSource
-                    AND lai.msg_id = :importMsgId
+                    AND (
+                        (lai.source = :importSource AND lai.msg_id = :importMsgId)
+                        OR (
+                            :importContentHash::text IS NOT NULL
+                            AND lai.content_hash = :importContentHash
+                        )
+                    )
+                -- Restrict to the calling account's imported listings of the correct kind only.
+                -- This ensures listings created manually (without an import record) or belonging
+                -- to a different account are never modified by the aggregator.
+                INNER JOIN listings AS l_guard
+                    ON l_guard.listing_id = lai.listing_id
+                    AND l_guard.owner_account_id = :accountId
+                    AND l_guard.kind = :kind
+            ORDER BY
+                -- Prefer exact (source, msg_id) match over cross-source content_hash match
+                CASE WHEN lai.source = :importSource AND lai.msg_id = :importMsgId THEN 0 ELSE 1 END ASC
             LIMIT 1
         ),
         updated_listing AS (
@@ -165,8 +180,12 @@ module.exports = {
         updated_import AS (
             UPDATE listing_aggregator_imports AS lai
             SET
-                 message_date = :importDate::timestamptz
-                ,permalink = :importPermalink
+                -- Only update source-specific fields when the match is from the same source.
+                -- For cross-source content_hash matches, keep the original import's source/msg_id
+                -- stable to prevent re-creation on subsequent aggregator runs.
+                 msg_id = CASE WHEN lai.source = :importSource THEN :importMsgId ELSE lai.msg_id END
+                ,message_date = :importDate::timestamptz
+                ,permalink = CASE WHEN lai.source = :importSource THEN :importPermalink ELSE lai.permalink END
                 ,content_hash = :importContentHash
                 ,photo_object_keys = COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
                 ,updated_at = NOW()
@@ -529,6 +548,19 @@ module.exports = {
             ,:accountId AS "accountId"
             ,EXISTS (SELECT 1 FROM inserted) AS "isFavorite";`,
 
+    getImportedListingPhotoKeys: `
+        SELECT
+             l.listing_id AS "listingId"
+            ,lai.photo_object_keys AS "photoObjectKeys"
+        FROM
+            listing_aggregator_imports AS lai
+            INNER JOIN listings AS l ON l.listing_id = lai.listing_id
+        WHERE
+            l.listing_id = :listingId
+            AND l.owner_account_id = :accountId
+            AND l.kind = :kind
+            AND l.is_active = TRUE;`,
+
     getExpiredImportedListings: `
         SELECT
              l.listing_id AS "listingId"
@@ -543,6 +575,34 @@ module.exports = {
         ORDER BY
             lai.message_date ASC,
             l.listing_id ASC;`,
+
+    getImportedListingsForDedup: `
+        SELECT
+             l.listing_id AS "listingId"
+            ,l.kind
+            ,l.title
+            ,l.description
+            ,l.price
+            ,l.phone
+            ,l.telegram
+            ,l.photos
+            ,lai.source
+            ,lai.msg_id AS "msgId"
+            ,lai.message_date AS "messageDate"
+            ,lai.permalink
+            ,lai.content_hash AS "contentHash"
+            ,lai.photo_object_keys AS "photoObjectKeys"
+        FROM
+            listing_aggregator_imports AS lai
+            INNER JOIN listings AS l ON l.listing_id = lai.listing_id
+        WHERE
+            l.owner_account_id = :accountId
+            AND l.kind = :kind
+            AND l.is_active = TRUE
+        ORDER BY
+            lai.message_date ASC, l.listing_id ASC
+        LIMIT :limit
+        OFFSET :offset;`,
 
     deleteImportedListing: `
         WITH target AS (

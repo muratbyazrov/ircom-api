@@ -7,6 +7,7 @@ const {
     getTaxiOfferById,
     getMyTaxiOffers,
     toggleTaxiFavorite,
+    getImportedTaxiOffersForDedup,
 } = require('./queries.js');
 const ROUTE_DIRECTION_BY_PLACES = Object.freeze({
     'Цхинвал|Владикавказ': 1,
@@ -454,6 +455,25 @@ class TaxiService {
             options: {
                 singularRow: true,
             },
+        });
+    }
+
+    getImportedTaxiOffersForDedup({params = {}}) {
+        const accountId = normalizePositiveInt(params.accountId);
+        if (accountId === null) {
+            return [];
+        }
+
+        const queryParams = {
+            ...params,
+            accountId,
+            limit: params.limit || 200,
+            offset: params.offset || 0,
+        };
+
+        return Story.dbAdapter.execQuery({
+            queryName: getImportedTaxiOffersForDedup,
+            params: queryParams,
         });
     }
 }

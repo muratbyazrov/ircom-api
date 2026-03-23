@@ -220,6 +220,32 @@ const toggleListingFavoriteSchema = {
     },
 };
 
+const getImportedListingsForDedupSchema = {
+    id: 'getImportedListingsForDedupSchema',
+    additionalProperties: false,
+    required: ['accountId', 'kind'],
+    properties: {
+        accountId: number1,
+        kind: {enum: [1, 2]},
+        limit,
+        offset: {
+            type: 'integer',
+            minimum: 0,
+        },
+    },
+};
+
+const deleteImportedListingByIdSchema = {
+    id: 'deleteImportedListingByIdSchema',
+    additionalProperties: false,
+    required: ['accountId', 'kind', 'listingId'],
+    properties: {
+        accountId: number1,
+        kind: {enum: [1, 2]},
+        listingId: number1,
+    },
+};
+
 module.exports = {
     createListingSchema,
     updateListingSchema,
@@ -228,4 +254,6 @@ module.exports = {
     getMyListingsSchema,
     toggleListingFavoriteSchema,
     cleanupImportedListingsSchema,
+    getImportedListingsForDedupSchema,
+    deleteImportedListingByIdSchema,
 };

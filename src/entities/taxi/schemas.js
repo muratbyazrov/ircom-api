@@ -228,6 +228,20 @@ const toggleTaxiFavoriteSchema = {
     },
 };
 
+const getImportedTaxiOffersForDedupSchema = {
+    id: 'getImportedTaxiOffersForDedupSchema',
+    additionalProperties: false,
+    required: ['accountId'],
+    properties: {
+        accountId: number1,
+        limit,
+        offset: {
+            type: 'integer',
+            minimum: 0,
+        },
+    },
+};
+
 module.exports = {
     createTaxiOfferSchema,
     updateTaxiOfferSchema,
@@ -236,4 +250,5 @@ module.exports = {
     getTaxiOfferByIdSchema,
     getMyTaxiOffersSchema,
     toggleTaxiFavoriteSchema,
+    getImportedTaxiOffersForDedupSchema,
 };

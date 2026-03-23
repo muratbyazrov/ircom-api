@@ -7,6 +7,8 @@ const {
     getMyListingsSchema,
     toggleListingFavoriteSchema,
     cleanupImportedListingsSchema,
+    getImportedListingsForDedupSchema,
+    deleteImportedListingByIdSchema,
 } = require('./schemas.js');
 
 class ListingController {
@@ -47,6 +49,16 @@ class ListingController {
     cleanupImportedListings(data) {
         Story.validator.validate(data.params, cleanupImportedListingsSchema);
         return this.service.cleanupImportedListings(data);
+    }
+
+    getImportedListingsForDedup(data) {
+        Story.validator.validate(data.params, getImportedListingsForDedupSchema);
+        return this.service.getImportedListingsForDedup(data);
+    }
+
+    deleteImportedListingById(data) {
+        Story.validator.validate(data.params, deleteImportedListingByIdSchema);
+        return this.service.deleteImportedListingById(data);
     }
 }
 

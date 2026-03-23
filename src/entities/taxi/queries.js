@@ -30,8 +30,19 @@ module.exports = {
                 INNER JOIN taxi_aggregator_imports AS tai ON
                     :importSource::text IS NOT NULL
                     AND :importMsgId::bigint IS NOT NULL
-                    AND tai.source = :importSource
-                    AND tai.msg_id = :importMsgId
+                    AND (
+                        (tai.source = :importSource AND tai.msg_id = :importMsgId)
+                        OR (
+                            :importContentHash::text IS NOT NULL
+                            AND tai.content_hash = :importContentHash
+                        )
+                    )
+                -- Restrict to the calling account's imported offers only.
+                INNER JOIN taxi_offers AS t_guard
+                    ON t_guard.taxi_offer_id = tai.taxi_offer_id
+                    AND t_guard.owner_account_id = :accountId
+            ORDER BY
+                CASE WHEN tai.source = :importSource AND tai.msg_id = :importMsgId THEN 0 ELSE 1 END ASC
             LIMIT 1
         ),
         updated_taxi_offer AS (
@@ -148,8 +159,9 @@ module.exports = {
         updated_import AS (
             UPDATE taxi_aggregator_imports AS tai
             SET
-                 message_date = :importDate::timestamptz
-                ,permalink = :importPermalink
+                 msg_id = CASE WHEN tai.source = :importSource THEN :importMsgId ELSE tai.msg_id END
+                ,message_date = :importDate::timestamptz
+                ,permalink = CASE WHEN tai.source = :importSource THEN :importPermalink ELSE tai.permalink END
                 ,content_hash = :importContentHash
                 ,photo_object_keys = COALESCE(:importPhotoObjectKeys::jsonb, '[]'::jsonb)
                 ,updated_at = NOW()
@@ -392,6 +404,31 @@ module.exports = {
             CASE WHEN :sortBy = 'departure_asc' THEN departure_at END ASC,
             CASE WHEN :sortBy = 'date_desc' THEN created_at END DESC,
             taxi_offer_id DESC
+        LIMIT :limit
+        OFFSET :offset;`,
+
+    getImportedTaxiOffersForDedup: `
+        SELECT
+             t.taxi_offer_id AS "taxiOfferId"
+            ,t.description
+            ,t.price
+            ,t.phone
+            ,t.telegram
+            ,t.departure_at AS "departureAt"
+            ,tai.source
+            ,tai.msg_id AS "msgId"
+            ,tai.message_date AS "messageDate"
+            ,tai.permalink
+            ,tai.content_hash AS "contentHash"
+            ,tai.photo_object_keys AS "photoObjectKeys"
+        FROM
+            taxi_aggregator_imports AS tai
+            INNER JOIN taxi_offers AS t ON t.taxi_offer_id = tai.taxi_offer_id
+        WHERE
+            t.owner_account_id = :accountId
+            AND t.is_active = TRUE
+        ORDER BY
+            tai.message_date ASC, t.taxi_offer_id ASC
         LIMIT :limit
         OFFSET :offset;`,
 
