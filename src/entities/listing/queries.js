@@ -607,6 +607,7 @@ module.exports = {
     getMyListingPhotoKeys: `
         SELECT
              l.listing_id AS "listingId"
+            ,l.photos AS "photos"
             ,lai.photo_object_keys AS "photoObjectKeys"
         FROM
             listings AS l

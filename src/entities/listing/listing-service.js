@@ -93,9 +93,54 @@ const normalizePhotoObjectKeys = value => {
     return [];
 };
 
+const extractObjectKeyFromUrl = (url, s3Config) => {
+    if (!url || typeof url !== 'string') {
+        return null;
+    }
+
+    const {publicBaseUrl, bucket, region} = s3Config;
+    const candidates = [
+        publicBaseUrl ? `${String(publicBaseUrl).replace(/\/+$/, '')}/` : null,
+        `https://${bucket}.s3.${region}.amazonaws.com/`,
+    ].filter(Boolean);
+
+    for (const prefix of candidates) {
+        if (url.startsWith(prefix)) {
+            return decodeURIComponent(url.slice(prefix.length));
+        }
+    }
+
+    return null;
+};
+
 class ListingService {
     constructor(config = {}) {
         this.mediaService = new MediaService(config);
+    }
+
+    getPhotoObjectKeysFromListing(listing) {
+        // Imported listings: use tracked S3 object keys
+        const importedKeys = normalizePhotoObjectKeys(listing.photoObjectKeys);
+        if (importedKeys.length > 0) {
+            return importedKeys;
+        }
+
+        // Manually created listings: extract object keys from photo URLs
+        const photos = normalizePhotoObjectKeys(listing.photos);
+        if (photos.length === 0) {
+            return [];
+        }
+
+        let s3Config;
+        try {
+            s3Config = this.mediaService.getS3Config();
+        } catch (_) {
+            return [];
+        }
+
+        return photos
+            .map(url => extractObjectKeyFromUrl(url, s3Config))
+            .filter(Boolean);
     }
 
     createListing({params}) {
@@ -220,7 +265,7 @@ class ListingService {
             return {deletedListingId: null, deletedPhotos: 0, failedPhotos: 0};
         }
 
-        const photoObjectKeys = normalizePhotoObjectKeys(listing.photoObjectKeys);
+        const photoObjectKeys = this.getPhotoObjectKeysFromListing(listing);
         let deletedPhotos = 0;
         let failedPhotos = 0;
 
