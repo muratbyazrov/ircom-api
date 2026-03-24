@@ -604,6 +604,44 @@ module.exports = {
         LIMIT :limit
         OFFSET :offset;`,
 
+    getMyListingPhotoKeys: `
+        SELECT
+             l.listing_id AS "listingId"
+            ,lai.photo_object_keys AS "photoObjectKeys"
+        FROM
+            listings AS l
+            LEFT JOIN listing_aggregator_imports AS lai ON lai.listing_id = l.listing_id
+        WHERE
+            l.listing_id = :listingId
+            AND l.owner_account_id = :accountId
+            AND l.kind = :kind
+            AND l.is_active = TRUE;`,
+
+    deleteMyListing: `
+        WITH target AS (
+            SELECT
+                l.listing_id
+            FROM
+                listings AS l
+            WHERE
+                l.listing_id = :listingId
+                AND l.owner_account_id = :accountId
+                AND l.kind = :kind
+        ),
+        deleted_favorites AS (
+            DELETE FROM listing_favorites
+            WHERE listing_id IN (SELECT listing_id FROM target)
+        ),
+        deleted_listing AS (
+            DELETE FROM listings
+            WHERE listing_id IN (SELECT listing_id FROM target)
+            RETURNING listing_id
+        )
+        SELECT
+            listing_id AS "listingId"
+        FROM
+            deleted_listing;`,
+
     deleteImportedListing: `
         WITH target AS (
             SELECT

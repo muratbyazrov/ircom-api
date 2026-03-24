@@ -246,6 +246,17 @@ const deleteImportedListingByIdSchema = {
     },
 };
 
+const deleteMyListingSchema = {
+    id: 'deleteMyListingSchema',
+    additionalProperties: false,
+    required: ['accountId', 'kind', 'listingId'],
+    properties: {
+        accountId: number1,
+        kind: {enum: [1, 2]},
+        listingId: number1,
+    },
+};
+
 module.exports = {
     createListingSchema,
     updateListingSchema,
@@ -256,4 +267,5 @@ module.exports = {
     cleanupImportedListingsSchema,
     getImportedListingsForDedupSchema,
     deleteImportedListingByIdSchema,
+    deleteMyListingSchema,
 };

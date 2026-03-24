@@ -11,6 +11,8 @@ const {
     deleteImportedListing,
     getImportedListingsForDedup,
     getImportedListingPhotoKeys,
+    getMyListingPhotoKeys,
+    deleteMyListing,
 } = require('./queries.js');
 const LISTING_PHONE_MAX = 20;
 const LISTING_TELEGRAM_MAX = 64;
@@ -201,6 +203,57 @@ class ListingService {
                 singularRow: true,
             },
         });
+    }
+
+    async deleteMyListingById({params}) {
+        const listing = await Story.dbAdapter.execQuery({
+            queryName: getMyListingPhotoKeys,
+            params: {
+                listingId: params.listingId,
+                accountId: params.accountId,
+                kind: params.kind,
+            },
+            options: {singularRow: true},
+        });
+
+        if (!listing) {
+            return {deletedListingId: null, deletedPhotos: 0, failedPhotos: 0};
+        }
+
+        const photoObjectKeys = normalizePhotoObjectKeys(listing.photoObjectKeys);
+        let deletedPhotos = 0;
+        let failedPhotos = 0;
+
+        for (const objectKey of photoObjectKeys) {
+            try {
+                await this.mediaService.deletePhoto({
+                    params: {accountId: params.accountId, objectKey},
+                });
+                deletedPhotos++;
+            } catch (error) {
+                failedPhotos++;
+            }
+        }
+
+        if (failedPhotos > 0) {
+            return {deletedListingId: null, deletedPhotos, failedPhotos};
+        }
+
+        const deleted = await Story.dbAdapter.execQuery({
+            queryName: deleteMyListing,
+            params: {
+                accountId: params.accountId,
+                kind: params.kind,
+                listingId: params.listingId,
+            },
+            options: {singularRow: true},
+        });
+
+        return {
+            deletedListingId: deleted?.listingId || null,
+            deletedPhotos,
+            failedPhotos,
+        };
     }
 
     getImportedListingsForDedup({params = {}}) {
