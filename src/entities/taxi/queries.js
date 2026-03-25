@@ -416,6 +416,7 @@ module.exports = {
             ,t.phone
             ,t.telegram
             ,t.departure_at AS "departureAt"
+            ,t.route_direction AS "routeDirection"
             ,tai.source
             ,tai.msg_id AS "msgId"
             ,tai.message_date AS "messageDate"
