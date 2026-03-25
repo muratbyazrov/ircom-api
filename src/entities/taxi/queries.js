@@ -64,6 +64,7 @@ module.exports = {
                 ,seats_total = :seatsTotal
                 ,seats_free = :seatsFree
                 ,car_photos = COALESCE(:carPhotos, '[]'::jsonb)
+                ,is_active = TRUE
                 ,updated_at = NOW()
             FROM
                 existing_import AS ei
