@@ -6,6 +6,17 @@ const LISTING_PHONE_MAX = 20;
 const LISTING_TELEGRAM_MAX = 64;
 const LISTING_PRICE_MAX = 50000000;
 
+const nullablePrice = {
+    anyOf: [
+        {type: 'null'},
+        {
+            type: 'number',
+            minimum: 1,
+            maximum: LISTING_PRICE_MAX,
+        },
+    ],
+};
+
 const nullablePhone = {
     anyOf: [
         {type: 'null'},
@@ -65,7 +76,7 @@ const importMetaSchema = {
 const createListingSchema = {
     id: 'createListingSchema',
     additionalProperties: false,
-    required: ['accountId', 'kind', 'title', 'description', 'price'],
+    required: ['accountId', 'kind', 'title', 'description'],
     anyOf: [
         {required: ['categoryId']},
         {required: ['category']},
@@ -89,11 +100,7 @@ const createListingSchema = {
             minLength: 10,
             maxLength: 2000,
         },
-        price: {
-            type: 'number',
-            minimum: 1,
-            maximum: LISTING_PRICE_MAX,
-        },
+        price: nullablePrice,
         phone: nullablePhone,
         telegram: nullableTelegram,
         whatsapp: nullablePhone,
@@ -110,7 +117,7 @@ const createListingSchema = {
 const updateListingSchema = {
     id: 'updateListingSchema',
     additionalProperties: false,
-    required: ['accountId', 'listingId', 'kind', 'title', 'description', 'price'],
+    required: ['accountId', 'listingId', 'kind', 'title', 'description'],
     anyOf: [
         {required: ['categoryId']},
         {required: ['category']},
@@ -135,11 +142,7 @@ const updateListingSchema = {
             minLength: 10,
             maxLength: 2000,
         },
-        price: {
-            type: 'number',
-            minimum: 1,
-            maximum: LISTING_PRICE_MAX,
-        },
+        price: nullablePrice,
         phone: nullablePhone,
         telegram: nullableTelegram,
         whatsapp: nullablePhone,
