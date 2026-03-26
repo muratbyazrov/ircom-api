@@ -96,6 +96,7 @@ const createListingSchema = {
         },
         phone: nullablePhone,
         telegram: nullableTelegram,
+        whatsapp: nullablePhone,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',
@@ -141,6 +142,7 @@ const updateListingSchema = {
         },
         phone: nullablePhone,
         telegram: nullableTelegram,
+        whatsapp: nullablePhone,
         realEstateType: {enum: [1, 2]},
         photos: {
             type: 'array',

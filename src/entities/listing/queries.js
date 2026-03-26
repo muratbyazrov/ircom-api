@@ -98,6 +98,7 @@ module.exports = {
                 ,price = :price
                 ,phone = :phone
                 ,telegram = :telegram
+                ,whatsapp = :whatsapp
                 ,real_estate_type = :realEstateType
                 ,photos = COALESCE(:photos, '[]'::jsonb)
                 ,listing_category_id = rc.listing_category_id
@@ -120,6 +121,7 @@ module.exports = {
                 ,l.price
                 ,l.phone
                 ,l.telegram
+                ,l.whatsapp
                 ,l.real_estate_type
                 ,l.photos
                 ,l.created_at
@@ -134,6 +136,7 @@ module.exports = {
                 ,price
                 ,phone
                 ,telegram
+                ,whatsapp
                 ,real_estate_type
                 ,photos
                 ,listing_category_id
@@ -148,6 +151,7 @@ module.exports = {
                 ,:price
                 ,:phone
                 ,:telegram
+                ,:whatsapp
                 ,:realEstateType
                 ,COALESCE(:photos, '[]'::jsonb)
                 ,rc.listing_category_id
@@ -168,6 +172,7 @@ module.exports = {
                 ,price
                 ,phone
                 ,telegram
+                ,whatsapp
                 ,real_estate_type
                 ,photos
                 ,created_at
@@ -233,6 +238,7 @@ module.exports = {
             ,sl.price
             ,sl.phone
             ,sl.telegram
+            ,sl.whatsapp
             ,sl.real_estate_type AS "realEstateType"
             ,sl.photos
             ,COALESCE(lai.message_date, sl.created_at) AS "createdAt"
@@ -299,6 +305,7 @@ module.exports = {
                 ,price = :price
                 ,phone = COALESCE(:phone, l.phone)
                 ,telegram = COALESCE(:telegram, l.telegram)
+                ,whatsapp = COALESCE(:whatsapp, l.whatsapp)
                 ,real_estate_type = :realEstateType
                 ,photos = COALESCE(:photos, '[]'::jsonb)
                 ,listing_category_id = rc.listing_category_id
@@ -322,6 +329,7 @@ module.exports = {
                 ,l.price
                 ,l.phone
                 ,l.telegram
+                ,l.whatsapp
                 ,l.real_estate_type AS "realEstateType"
                 ,l.photos
                 ,l.created_at AS "createdAt"
@@ -338,6 +346,7 @@ module.exports = {
             ,ul.price
             ,ul.phone
             ,ul.telegram
+            ,ul.whatsapp
             ,ul."realEstateType"
             ,ul.photos
             ,COALESCE(lai.message_date, ul."createdAt") AS "createdAt"
@@ -377,7 +386,7 @@ module.exports = {
             END AS phone
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN NULL
-                ELSE a.whatsapp
+                ELSE COALESCE(l.whatsapp, a.whatsapp)
             END AS whatsapp
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN l.telegram
@@ -438,7 +447,7 @@ module.exports = {
             END AS phone
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN NULL
-                ELSE a.whatsapp
+                ELSE COALESCE(l.whatsapp, a.whatsapp)
             END AS whatsapp
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN l.telegram
@@ -484,7 +493,7 @@ module.exports = {
             END AS phone
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN NULL
-                ELSE a.whatsapp
+                ELSE COALESCE(l.whatsapp, a.whatsapp)
             END AS whatsapp
             ,CASE
                 WHEN lai.listing_id IS NOT NULL THEN l.telegram

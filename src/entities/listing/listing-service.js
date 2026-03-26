@@ -151,6 +151,7 @@ class ListingService {
             title: normalizeOptionalText(params.title, LISTING_TITLE_MAX),
             phone: normalizeOptionalText(params.phone, LISTING_PHONE_MAX),
             telegram: normalizeOptionalText(params.telegram, LISTING_TELEGRAM_MAX),
+            whatsapp: normalizeOptionalText(params.whatsapp, LISTING_PHONE_MAX),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
             ...normalizeImportMeta(params),
@@ -173,6 +174,7 @@ class ListingService {
             title: normalizeOptionalText(params.title, LISTING_TITLE_MAX),
             phone: normalizeOptionalText(params.phone, LISTING_PHONE_MAX),
             telegram: normalizeOptionalText(params.telegram, LISTING_TELEGRAM_MAX),
+            whatsapp: normalizeOptionalText(params.whatsapp, LISTING_PHONE_MAX),
             realEstateType: Object.prototype.hasOwnProperty.call(params, 'realEstateType') ? params.realEstateType : null,
             photos: normalizePhotos(params),
         };
