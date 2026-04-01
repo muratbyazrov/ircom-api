@@ -13,6 +13,8 @@ const {MediaController} = require('./src/entities/media/media-controller.js');
 const {MediaService} = require('./src/entities/media/media-service.js');
 const {DictionaryController} = require('./src/entities/dictionary/dictionary-controller.js');
 const {DictionaryService} = require('./src/entities/dictionary/dictionary-service.js');
+const {DigestController} = require('./src/entities/digest/digest-controller.js');
+const {DigestService} = require('./src/entities/digest/digest-service.js');
 
 const loadLocalEnv = () => {
     const envPath = path.join(process.cwd(), '.env');
@@ -51,6 +53,7 @@ class App {
             {domain: 'food', Controller: FoodController, Service: FoodService},
             {domain: 'media', Controller: MediaController, Service: MediaService},
             {domain: 'dictionary', Controller: DictionaryController, Service: DictionaryService},
+            {domain: 'digest', Controller: DigestController, Service: DigestService},
         ]);
     }
 }
