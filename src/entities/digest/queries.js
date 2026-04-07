@@ -28,8 +28,8 @@ module.exports = {
             WHERE
                 is_active = TRUE
                 AND direction = 2
-                AND departure_at >= DATE_TRUNC('day', NOW() + INTERVAL '1 day')
-                AND departure_at <  DATE_TRUNC('day', NOW() + INTERVAL '2 days')
+                AND departure_at >= (DATE_TRUNC('day', NOW() AT TIME ZONE 'Europe/Moscow') + INTERVAL '1 day') AT TIME ZONE 'Europe/Moscow'
+                AND departure_at <  (DATE_TRUNC('day', NOW() AT TIME ZONE 'Europe/Moscow') + INTERVAL '2 days') AT TIME ZONE 'Europe/Moscow'
         )
         SELECT
              jsonb_agg(
