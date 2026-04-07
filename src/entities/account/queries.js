@@ -223,4 +223,13 @@ module.exports = {
             accounts
         WHERE
             account_id = :accountId;`,
+
+    getTelegramSubscribers: `
+        SELECT
+             telegram_user_id AS "telegramUserId"
+            ,name
+        FROM
+            accounts
+        WHERE
+            telegram_user_id IS NOT NULL;`,
 };

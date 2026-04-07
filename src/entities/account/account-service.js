@@ -15,6 +15,7 @@ const {
     signOut,
     createOrUpdateAccount,
     getProfile,
+    getTelegramSubscribers,
 } = require('./queries.js');
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
@@ -588,6 +589,13 @@ class AccountService {
             options: {
                 singularRow: true,
             },
+        });
+    }
+
+    getTelegramSubscribers() {
+        return Story.dbAdapter.execQuery({
+            queryName: getTelegramSubscribers,
+            params: {},
         });
     }
 }

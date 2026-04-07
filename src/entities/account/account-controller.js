@@ -48,6 +48,10 @@ class AccountController {
         Story.validator.validate(data.params, getProfileSchema);
         return this.service.getProfile(data);
     }
+
+    getTelegramSubscribers() {
+        return this.service.getTelegramSubscribers();
+    }
 }
 
 module.exports = {AccountController};
