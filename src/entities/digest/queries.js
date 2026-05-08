@@ -1,4 +1,30 @@
 module.exports = {
+    markDigestSent: `
+        UPDATE accounts
+        SET
+             telegram_digest_sent_at = NOW()
+            ,updated_at = NOW()
+        WHERE
+            telegram_user_id = :telegramUserId;`,
+
+    setDigestFrequency: `
+        UPDATE accounts
+        SET
+             telegram_digest_frequency = :frequency
+            ,updated_at = NOW()
+        WHERE
+            telegram_user_id = :telegramUserId;`,
+
+    getDigestSettings: `
+        SELECT
+             telegram_digest_frequency AS "frequency"
+            ,telegram_digest_sent_at   AS "digestSentAt"
+        FROM
+            accounts
+        WHERE
+            telegram_user_id = :telegramUserId
+        LIMIT 1;`,
+
     getDigestStats: `
         WITH listing_stats AS (
             SELECT

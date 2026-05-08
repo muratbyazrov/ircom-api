@@ -226,8 +226,10 @@ module.exports = {
 
     getTelegramSubscribers: `
         SELECT
-             telegram_user_id AS "telegramUserId"
+             telegram_user_id        AS "telegramUserId"
             ,name
+            ,telegram_digest_sent_at AS "telegramDigestSentAt"
+            ,telegram_digest_frequency AS "telegramDigestFrequency"
         FROM
             accounts
         WHERE
